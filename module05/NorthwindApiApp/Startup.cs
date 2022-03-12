@@ -15,6 +15,7 @@ using Northwind.Services.EntityFrameworkCore.Services;
 using Northwind.Services.Employees;
 using Microsoft.EntityFrameworkCore;
 using AutoMapper;
+using Northwind.Services.EntityFrameworkCore.Context;
 
 #pragma warning disable CA1822 // Mark members as static
 namespace NorthwindApiApp
@@ -57,7 +58,10 @@ namespace NorthwindApiApp
                        provider.GetService<NorthwindContext>(),
                        int.Parse(this.Configuration["PictureService:MaxFileSize"], CultureInfo.InvariantCulture)))
                .AddScoped(provider => new MapperConfiguration(mc => mc.AddProfile(new MappingProfile())).CreateMapper())
-               .AddControllers();
+               .AddControllers(options =>
+               {
+                   options.SuppressAsyncSuffixInActionNames = false;
+               });
                 
             }
             else if(this.Configuration["ServiceType"] == "Northwind")
@@ -74,7 +78,10 @@ namespace NorthwindApiApp
                         int.Parse(this.Configuration["PictureService:MaxFileSize"], CultureInfo.InvariantCulture)))
                 .AddScoped(provider => new SqlConnection(this.Configuration.GetConnectionString("SqlService")))
                 .AddScoped(provider => new MapperConfiguration(mc => mc.AddProfile(new MappingProfile())).CreateMapper())
-                .AddControllers();
+                .AddControllers(options =>
+                {
+                    options.SuppressAsyncSuffixInActionNames = false;
+                });
             }
             
         }

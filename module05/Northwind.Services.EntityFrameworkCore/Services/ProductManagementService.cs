@@ -2,7 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
 using Microsoft.EntityFrameworkCore;
+using Northwind.Services.EntityFrameworkCore.Context;
+using Northwind.Services.EntityFrameworkCore.Entities;
 using Northwind.Services.Products;
 
 namespace Northwind.Services.EntityFrameworkCore.Services
@@ -13,15 +16,18 @@ namespace Northwind.Services.EntityFrameworkCore.Services
     public sealed class ProductManagementService : IProductManagementService
     {
         private readonly NorthwindContext context;
+        private readonly IMapper mapper;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ProductManagementService"/> class.
         /// </summary>
         /// <param name="context">Data base context.</param>
+        /// <param name="mapper">Mapper.</param>
         /// <exception cref="ArgumentNullException">Throws if one of parameters is null.</exception>
-        public ProductManagementService(NorthwindContext context)
+        public ProductManagementService(NorthwindContext context, IMapper mapper)
         {
             this.context = context ?? throw new ArgumentNullException(nameof(context));
+            this.mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
         }
 
         /// <inheritdoc/>
@@ -30,7 +36,7 @@ namespace Northwind.Services.EntityFrameworkCore.Services
             product = product ?? throw new ArgumentNullException(nameof(product));
 
             product.Id = this.GenerateProductId();
-            await this.context.Products.AddAsync(product);
+            await this.context.Products.AddAsync(this.mapper.Map<ProductsEntity>(product));
             await this.context.SaveChangesAsync();
 
             return product.Id;
@@ -54,39 +60,51 @@ namespace Northwind.Services.EntityFrameworkCore.Services
         }
 
         /// <inheritdoc/>
-        public IAsyncEnumerable<Product> LookupProductsByNameAsync(IEnumerable<string> names)
+        public async IAsyncEnumerable<Product> LookupProductsByNameAsync(IEnumerable<string> names)
         {
-            return (from p in this.context.Products
-                    from n in names
-                    where p.Name.Equals(n, StringComparison.OrdinalIgnoreCase)
-                    select p).AsAsyncEnumerable();
+            var query = from p in this.context.Products
+                        from n in names
+                        where p.Name.Equals(n, StringComparison.OrdinalIgnoreCase)
+                        select p;
+
+            await foreach (var entity in query.AsAsyncEnumerable())
+            {
+                yield return this.mapper.Map<Product>(entity);
+            }
         }
 
         /// <inheritdoc/>
-        public IAsyncEnumerable<Product> GetProductsAsync(int offset, int limit)
+        public async IAsyncEnumerable<Product> GetProductsAsync(int offset, int limit)
         {
-            return this.context.Products
+            var query = this.context.Products
                 .Skip(offset)
-                .Take(limit)
-                .AsAsyncEnumerable();
+                .Take(limit);
+
+            await foreach (var entity in query.AsAsyncEnumerable())
+            {
+                yield return this.mapper.Map<Product>(entity);
+            }
         }
 
         /// <inheritdoc/>
-        public IAsyncEnumerable<Product> GetProductsForCategoryAsync(int categoryId)
+        public async IAsyncEnumerable<Product> GetProductsForCategoryAsync(int categoryId)
         {
-            return this.context.Products
-                .Where(p => p.Id == categoryId)
-                .AsAsyncEnumerable();
+            var query = this.context.Products.Where(p => p.Id == categoryId);
+
+            await foreach (var entity in query.AsAsyncEnumerable())
+            {
+                yield return this.mapper.Map<Product>(entity);
+            }
         }
 
         /// <inheritdoc/>
         public async Task<Product> GetProductAsync(int productId)
         {
-            var product = await this.context.Products
+            var productEntity = await this.context.Products
                 .Where(p => p.Id == productId)
                 .FirstOrDefaultAsync();
 
-            return product;
+            return this.mapper.Map<Product>(productEntity);
         }
 
         /// <inheritdoc/>

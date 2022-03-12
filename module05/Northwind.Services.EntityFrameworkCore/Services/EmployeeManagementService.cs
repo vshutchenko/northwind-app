@@ -2,8 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using Northwind.Services.Employees;
+using Northwind.Services.EntityFrameworkCore.Context;
+using Northwind.Services.EntityFrameworkCore.Entities;
 
 namespace Northwind.Services.EntityFrameworkCore.Services
 {
@@ -13,15 +16,18 @@ namespace Northwind.Services.EntityFrameworkCore.Services
     public class EmployeeManagementService : IEmployeeManagementService
     {
         private readonly NorthwindContext context;
+        private readonly IMapper mapper;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="EmployeeManagementService"/> class.
         /// </summary>
         /// <param name="context">Data base context.</param>
+        /// <param name="mapper">Mapper.</param>
         /// <exception cref="ArgumentNullException">Throws if one of parameters is null.</exception>
-        public EmployeeManagementService(NorthwindContext context)
+        public EmployeeManagementService(NorthwindContext context, IMapper mapper)
         {
             this.context = context ?? throw new ArgumentNullException(nameof(context));
+            this.mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
         }
 
         /// <inheritdoc/>
@@ -30,7 +36,7 @@ namespace Northwind.Services.EntityFrameworkCore.Services
             employee = employee ?? throw new ArgumentNullException(nameof(employee));
 
             employee.Id = this.GenerateEmployeeId();
-            await this.context.Employees.AddAsync(employee);
+            await this.context.Employees.AddAsync(this.mapper.Map<EmployeesEntity>(employee));
             await this.context.SaveChangesAsync();
 
             return employee.Id;
@@ -54,12 +60,14 @@ namespace Northwind.Services.EntityFrameworkCore.Services
         }
 
         /// <inheritdoc/>
-        public IAsyncEnumerable<Employee> GetEmployeesAsync(int offset, int limit)
+        public async IAsyncEnumerable<Employee> GetEmployeesAsync(int offset, int limit)
         {
-            return this.context.Employees
-                .Skip(offset)
-                .Take(limit)
-                .AsAsyncEnumerable();
+            var query = this.context.Employees.Skip(offset).Take(limit);
+
+            await foreach (var entity in query.AsAsyncEnumerable())
+            {
+                yield return this.mapper.Map<Employee>(entity);
+            }
         }
 
         /// <inheritdoc/>
@@ -69,7 +77,7 @@ namespace Northwind.Services.EntityFrameworkCore.Services
                 .Where(e => e.Id == employeeId)
                 .FirstOrDefaultAsync();
 
-            return employee;
+            return this.mapper.Map<Employee>(employee);
         }
 
         /// <inheritdoc/>

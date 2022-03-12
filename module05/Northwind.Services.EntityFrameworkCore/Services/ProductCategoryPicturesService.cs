@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using Northwind.Services.EntityFrameworkCore.Context;
 using Northwind.Services.Products;
 
 #pragma warning disable CA2000
@@ -37,7 +38,7 @@ namespace Northwind.Services.EntityFrameworkCore.Services
         /// <inheritdoc/>
         public async Task<byte[]> GetPictureAsync(int categoryId)
         {
-            var existingCategory = await this.context.ProductCategories.Where(c => c.Id == categoryId).FirstOrDefaultAsync();
+            var existingCategory = await this.context.Categories.Where(c => c.Id == categoryId).FirstOrDefaultAsync();
 
             if (existingCategory is null || existingCategory.Picture is null)
             {
@@ -50,7 +51,7 @@ namespace Northwind.Services.EntityFrameworkCore.Services
         /// <inheritdoc/>
         public async Task<bool> DestroyPictureAsync(int categoryId)
         {
-            var existingCategory = await this.context.ProductCategories.Where(c => c.Id == categoryId).FirstOrDefaultAsync();
+            var existingCategory = await this.context.Categories.Where(c => c.Id == categoryId).FirstOrDefaultAsync();
 
             if (existingCategory is null)
             {
@@ -67,7 +68,7 @@ namespace Northwind.Services.EntityFrameworkCore.Services
         {
             stream = stream ?? throw new ArgumentNullException(nameof(stream));
 
-            var existingCategory = await this.context.ProductCategories.Where(c => c.Id == categoryId).FirstOrDefaultAsync();
+            var existingCategory = await this.context.Categories.Where(c => c.Id == categoryId).FirstOrDefaultAsync();
 
             if (existingCategory is null || stream.Length > this.maxFileSize)
             {

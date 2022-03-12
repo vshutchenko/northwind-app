@@ -2,6 +2,7 @@
 using Northwind.DataAccess.Employees;
 using Northwind.DataAccess.Products;
 using Northwind.Services.Employees;
+using Northwind.Services.EntityFrameworkCore.Entities;
 using Northwind.Services.Products;
 
 namespace NorthwindApiApp
@@ -22,6 +23,13 @@ namespace NorthwindApiApp
             this.CreateMap<ProductTransferObject, Product>();
             this.CreateMap<ProductCategory, ProductCategoryTransferObject>();
             this.CreateMap<ProductCategoryTransferObject, ProductCategory>();
+
+            this.CreateMap<Employee, EmployeesEntity>();
+            this.CreateMap<EmployeesEntity, Employee>();
+            this.CreateMap<Product, ProductsEntity>();
+            this.CreateMap<ProductsEntity, Product>();
+            this.CreateMap<ProductCategory, CategoriesEntity>();
+            this.CreateMap<CategoriesEntity, ProductCategory>();
         }
     }
 }
