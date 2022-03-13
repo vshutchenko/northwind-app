@@ -1,7 +1,9 @@
 ﻿using AutoMapper;
 using Northwind.DataAccess.Employees;
 using Northwind.DataAccess.Products;
+using Northwind.Services.Blogging;
 using Northwind.Services.Employees;
+using Northwind.Services.EntityFrameworkCore.Blogging.Entities;
 using Northwind.Services.EntityFrameworkCore.Entities;
 using Northwind.Services.Products;
 
@@ -30,6 +32,9 @@ namespace NorthwindApiApp
             this.CreateMap<ProductsEntity, Product>();
             this.CreateMap<ProductCategory, CategoriesEntity>();
             this.CreateMap<CategoriesEntity, ProductCategory>();
+
+            this.CreateMap<BlogArticle, BlogArticleEntity>();
+            this.CreateMap<BlogArticleEntity, BlogArticle>();
         }
     }
 }

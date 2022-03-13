@@ -155,13 +155,13 @@ $ dotnet ef database update --project Northwind.Services.EntityFrameworkCore.Blo
 
 8. Спроектируйте API для статей блога:
 
-| Operation        | HTTP Verb | URI                | Request body | Response body |
-| ---------------- | --------- | ------------------ | ------------ | ------------- |
-| Create           |           | /api/articles      |              |               |
-| Read (all items) |           | /api/articles      |              |               |
-| Read (item)      |           | /api/articles/{id} |              |               |
-| Update           |           | /api/articles/{id} |              |               |
-| Delete           |           | /api/articles/{id} |              |               |
+| Operation        | HTTP Verb | URI                | Request body | Response body       |
+| ---------------- | --------- | ------------------ | ------------ | ------------------- |
+| Create           | POST      | /api/articles      | Article JSON | Article JSON        |
+| Read (all items) | GET       | /api/articles      | None         | Short Articles JSON |
+| Read (item)      | GET       | /api/articles/{id} | None         | Full Articles JSON  |
+| Update           | PUT       | /api/articles/{id} | Article JSON | None                |
+| Delete           | DELETE    | /api/articles/{id} | None         | None                |
 
 9. Добавьте реализацию в _BlogArticle_, _IBloggingService_, _BloggingService_ и _BlogArticlesController_ для операции Create. Дата и время добавления статьи вычисляются автоматически на основе системного времени сервера, на котором происходит запуск back-end приложения.
 

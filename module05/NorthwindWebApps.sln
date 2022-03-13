@@ -18,7 +18,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Northwind.Services.EntityFr
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Northwind.DataAccess.SqlServer", "Northwind.DataAccess.SqlServer\Northwind.DataAccess.SqlServer.csproj", "{89FB6384-F08C-4DCC-ACA5-7BAC0387FE3F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Northwind.Services.DataAccess", "Northwind.Services.DataAccess\Northwind.Services.DataAccess.csproj", "{8E33DF05-AE59-411E-87EA-BF3B1FD7AF9F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Northwind.Services.DataAccess", "Northwind.Services.DataAccess\Northwind.Services.DataAccess.csproj", "{8E33DF05-AE59-411E-87EA-BF3B1FD7AF9F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Northwind.Services.EntityFrameworkCore.Blogging", "Northwind.Services.EntityFrameworkCore.Blogging\Northwind.Services.EntityFrameworkCore.Blogging.csproj", "{3486586E-6134-41D1-AC9C-0013F324C1E6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -102,6 +104,18 @@ Global
 		{8E33DF05-AE59-411E-87EA-BF3B1FD7AF9F}.Release|x64.Build.0 = Release|Any CPU
 		{8E33DF05-AE59-411E-87EA-BF3B1FD7AF9F}.Release|x86.ActiveCfg = Release|Any CPU
 		{8E33DF05-AE59-411E-87EA-BF3B1FD7AF9F}.Release|x86.Build.0 = Release|Any CPU
+		{3486586E-6134-41D1-AC9C-0013F324C1E6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3486586E-6134-41D1-AC9C-0013F324C1E6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3486586E-6134-41D1-AC9C-0013F324C1E6}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{3486586E-6134-41D1-AC9C-0013F324C1E6}.Debug|x64.Build.0 = Debug|Any CPU
+		{3486586E-6134-41D1-AC9C-0013F324C1E6}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{3486586E-6134-41D1-AC9C-0013F324C1E6}.Debug|x86.Build.0 = Debug|Any CPU
+		{3486586E-6134-41D1-AC9C-0013F324C1E6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3486586E-6134-41D1-AC9C-0013F324C1E6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3486586E-6134-41D1-AC9C-0013F324C1E6}.Release|x64.ActiveCfg = Release|Any CPU
+		{3486586E-6134-41D1-AC9C-0013F324C1E6}.Release|x64.Build.0 = Release|Any CPU
+		{3486586E-6134-41D1-AC9C-0013F324C1E6}.Release|x86.ActiveCfg = Release|Any CPU
+		{3486586E-6134-41D1-AC9C-0013F324C1E6}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
