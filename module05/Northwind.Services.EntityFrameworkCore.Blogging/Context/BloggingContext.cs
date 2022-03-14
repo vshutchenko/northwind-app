@@ -28,5 +28,10 @@ namespace Northwind.Services.EntityFrameworkCore.Blogging.Context
         /// Gets or sets blog articles.
         /// </summary>
         public DbSet<BlogArticleEntity> BlogArticles { get; set; }
+
+        /// <summary>
+        /// Gets or sets blog article products.
+        /// </summary>
+        public DbSet<BlogArticleProductEntity> BlogArticleProducts { get; set; }
     }
 }
