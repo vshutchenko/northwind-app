@@ -238,11 +238,11 @@ Northwind.Services.EntityFrameworkCore.Blogging\Entities\BlogArticleProduct.cs
 2. Добавьте новую миграцию _AddBlogArticleProduct_ и примените ее к БД _NorthwindBlogging_.
 3. Спроектируйте API:
 
-| Operation                                           | HTTP Verb | URI                                      | Request body | Response body |
-| --------------------------------------------------- | --------- | ---------------------------------------- | ------------ | ------------- |
-| Return all related products                         |           | /api/articles/{article-id}/products      |              |               |
-| Create a link to a product for an article           |           | /api/articles/{article-id}/products/{id} |              |               |
-| Remove an existed link to a product from an article |           | /api/articles/{article-id}/products/{id} |              |               |
+| Operation                                           | HTTP Verb | URI                                      | Request body | Response body       |
+| --------------------------------------------------- | --------- | ---------------------------------------- | ------------ | ------------------- |
+| Return all related products                         | GET       | /api/articles/{article-id}/products      | None         | Products JSON       |
+| Create a link to a product for an article           | POST      | /api/articles/{article-id}/products/{id} | None         | ProductArticle JSON |
+| Remove an existed link to a product from an article | DELETE    | /api/articles/{article-id}/products/{id} | None         | None                |
 
 4. Реализуйте функциональность.
 

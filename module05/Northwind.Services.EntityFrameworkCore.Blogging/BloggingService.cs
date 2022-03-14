@@ -45,6 +45,28 @@ namespace Northwind.Services.EntityFrameworkCore.Blogging
         }
 
         /// <inheritdoc/>
+        public async Task<int> CreateRelatedProductAsync(BlogArticleProduct articleProduct)
+        {
+            articleProduct = articleProduct ?? throw new ArgumentNullException(nameof(articleProduct));
+
+            bool exists = await this.context.BlogArticleProducts
+                .AnyAsync(p => p.ArticleId == articleProduct.ArticleId && p.ProductId == articleProduct.ProductId);
+
+            if (exists)
+            {
+                return -1;
+            }
+
+            articleProduct.Id = 0;
+            var entity = this.mapper.Map<BlogArticleProductEntity>(articleProduct);
+
+            await this.context.BlogArticleProducts.AddAsync(entity);
+            await this.context.SaveChangesAsync();
+
+            return entity.Id;
+        }
+
+        /// <inheritdoc/>
         public async Task<bool> DeleteBlogArticleAsync(int articleId)
         {
             var existingArticle = await this.context.BlogArticles
@@ -54,6 +76,23 @@ namespace Northwind.Services.EntityFrameworkCore.Blogging
             if (existingArticle != null)
             {
                 this.context.Remove(existingArticle);
+                await this.context.SaveChangesAsync();
+                return true;
+            }
+
+            return false;
+        }
+
+        /// <inheritdoc/>
+        public async Task<bool> DeleteRelatedProductAsync(int articleId, int productId)
+        {
+            var existingProductArticle = await this.context.BlogArticleProducts
+                .Where(p => p.ArticleId == articleId && p.ProductId == productId)
+                .FirstOrDefaultAsync();
+
+            if (existingProductArticle != null)
+            {
+                this.context.Remove(existingProductArticle);
                 await this.context.SaveChangesAsync();
                 return true;
             }
@@ -81,6 +120,17 @@ namespace Northwind.Services.EntityFrameworkCore.Blogging
             await foreach (var entity in query.AsAsyncEnumerable())
             {
                 yield return this.mapper.Map<BlogArticle>(entity);
+            }
+        }
+
+        /// <inheritdoc/>
+        public async IAsyncEnumerable<BlogArticleProduct> GetRelatedProductsAsync(int articleId)
+        {
+            var query = this.context.BlogArticleProducts.Where(p => p.ArticleId == articleId);
+
+            await foreach (var entity in query.AsAsyncEnumerable())
+            {
+                yield return this.mapper.Map<BlogArticleProduct>(entity);
             }
         }
 

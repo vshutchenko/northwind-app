@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Northwind.Services.EntityFrameworkCore.Blogging.Context;
 
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
 namespace Northwind.Services.EntityFrameworkCore.Blogging.Migrations
 {
     [DbContext(typeof(BloggingContext))]

@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+using Northwind.Services.Products;
 
 namespace Northwind.Services.Blogging
 {
@@ -44,5 +45,27 @@ namespace Northwind.Services.Blogging
         /// <param name="article">A <see cref="BlogArticle"/>.</param>
         /// <returns>True if a blog article is updated; otherwise false.</returns>
         Task<bool> UpdateBlogArticleAsync(int articleId, BlogArticle article);
+
+        /// <summary>
+        /// Gets a blog article related products.
+        /// </summary>
+        /// <param name="articleId">A blog article identifier.</param>
+        /// <returns>Returns blog article or null if blog article does not exist.</returns>
+        IAsyncEnumerable<BlogArticleProduct> GetRelatedProductsAsync(int articleId);
+
+        /// <summary>
+        /// Creates related product for blog article.
+        /// </summary>
+        /// <param name="articleProduct">A <see cref="BlogArticleProduct"/> to create.</param>
+        /// <returns>An identifier of a created blog article product.</returns>
+        Task<int> CreateRelatedProductAsync(BlogArticleProduct articleProduct);
+
+        /// <summary>
+        /// Deletes related product for blog article.
+        /// </summary>
+        /// <param name="articleId">Article id.</param>
+        /// <param name="productId">Product id.</param>
+        /// <returns>An identifier of a blog article product to delete.</returns>
+        Task<bool> DeleteRelatedProductAsync(int articleId, int productId);
     }
 }
