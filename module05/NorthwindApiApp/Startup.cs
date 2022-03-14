@@ -18,7 +18,6 @@ using Northwind.Services.EntityFrameworkCore.Context;
 using Northwind.Services.EntityFrameworkCore.Blogging.Context;
 using Northwind.Services.EntityFrameworkCore.Blogging;
 using Northwind.Services.Blogging;
-
 using System;
 
 #pragma warning disable CA1822 // Mark members as static
@@ -63,7 +62,7 @@ namespace NorthwindApiApp
                        provider.GetService<NorthwindContext>(),
                        int.Parse(this.Configuration["PictureService:MaxFileSize"], CultureInfo.InvariantCulture)))
                .AddScoped(provider => new MapperConfiguration(mc => mc.AddProfile(new MappingProfile())).CreateMapper())
-               .AddDbContext<BloggingContext>(options => options.UseSqlServer(this.Configuration.GetConnectionString("BloggingSqlService")))
+               .AddDbContext<BloggingContext>(options => options.UseSqlServer(Environment.GetEnvironmentVariable("SQLCONNSTR_NORTHWIND_BLOGGING")))
                .AddControllers(options =>
                {
                    options.SuppressAsyncSuffixInActionNames = false;
@@ -85,7 +84,7 @@ namespace NorthwindApiApp
                        int.Parse(this.Configuration["PictureService:MaxFileSize"], CultureInfo.InvariantCulture)))
                .AddScoped(provider => new SqlConnection(this.Configuration.GetConnectionString("SqlService")))
                .AddScoped(provider => new MapperConfiguration(mc => mc.AddProfile(new MappingProfile())).CreateMapper())
-               .AddDbContext<BloggingContext>(options => options.UseSqlServer(this.Configuration.GetConnectionString("BloggingSqlService")))
+               .AddDbContext<BloggingContext>(options => options.UseSqlServer(Environment.GetEnvironmentVariable("SQLCONNSTR_NORTHWIND_BLOGGING")))
                .AddControllers(options =>
                {
                    options.SuppressAsyncSuffixInActionNames = false;
