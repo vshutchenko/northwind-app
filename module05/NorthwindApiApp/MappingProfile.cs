@@ -38,6 +38,9 @@ namespace NorthwindApiApp
 
             this.CreateMap<BlogArticleProduct, BlogArticleProductEntity>();
             this.CreateMap<BlogArticleProductEntity, BlogArticleProduct>();
+
+            this.CreateMap<BlogComment, BlogCommentEntity>();
+            this.CreateMap<BlogCommentEntity, BlogComment>();
         }
     }
 }
