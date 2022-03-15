@@ -2,7 +2,7 @@
 using Northwind.Services.Blogging;
 using Northwind.Services.Employees;
 using Northwind.Services.Products;
-using NorthwindApiApp.Models;
+using NorthwindApiApp.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -43,14 +43,14 @@ namespace NorthwindApiApp.Controllers
         /// <returns>Articles collection.</returns>
         // GET: api/<BlogArticlesController>
         [HttpGet]
-        public async IAsyncEnumerable<BlogArticleShortInfo> GetBlogArticlesAsync(int offset = 0, int limit = 10)
+        public async IAsyncEnumerable<BlogArticleShortViewModel> GetBlogArticlesAsync(int offset = 0, int limit = 10)
         {
             await foreach (var article in this.blogService.GetBlogArticlesAsync(offset, limit))
             {
                 var author = await this.employeeService.GetEmployeeAsync(article.AuthorId);
                 if (!(author is null))
                 {
-                    yield return new BlogArticleShortInfo(author, article);
+                    yield return new BlogArticleShortViewModel(author, article);
                 }
                 
             }
@@ -63,14 +63,14 @@ namespace NorthwindApiApp.Controllers
         /// <returns>Article if it exists; otherwise false.</returns>
         // GET api/<BlogArticlesController>/{id}
         [HttpGet("{id}")]
-        public async Task<ActionResult<BlogArticleFullInfo>> GetBlogArticleAsync(int id)
+        public async Task<ActionResult<BlogArticleFullViewModel>> GetBlogArticleAsync(int id)
         {
             BlogArticle article = await this.blogService.GetBlogArticleAsync(id);
                   
             if (article != null)
             {
                 Employee author = await this.employeeService.GetEmployeeAsync(article.AuthorId);
-                BlogArticleFullInfo fullArticle = new BlogArticleFullInfo(author, article);
+                BlogArticleFullViewModel fullArticle = new BlogArticleFullViewModel(author, article);
                 return this.Ok(fullArticle);
             }
             else
