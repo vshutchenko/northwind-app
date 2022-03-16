@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using Northwind.Services.Products;
 
 namespace Northwind.Services.Blogging
 {
@@ -67,5 +66,36 @@ namespace Northwind.Services.Blogging
         /// <param name="productId">Product id.</param>
         /// <returns>An identifier of a blog article product to delete.</returns>
         Task<bool> DeleteRelatedProductAsync(int articleId, int productId);
+
+        /// <summary>
+        /// Gets article comments.
+        /// </summary>
+        /// <param name="articleId">A blog article identifier.</param>
+        /// <param name="offset">Offset.</param>
+        /// <param name="limit">Limit.</param>
+        /// <returns>Comments collection.</returns>
+        public IAsyncEnumerable<BlogComment> GetBlogArticleCommentsAsync(int articleId, int offset, int limit);
+
+        /// <summary>
+        /// Creates comment for article.
+        /// </summary>
+        /// <param name="comment">Comment to create.</param>
+        /// <returns>An identifier of a created article comment.</returns>
+        public Task<int> CreateBlogArticleCommentAsync(BlogComment comment);
+
+        /// <summary>
+        /// Updates article comment.
+        /// </summary>
+        /// <param name="commentId">A blog article comment identifier.</param>
+        /// <param name="comment">Comment to update.</param>
+        /// <returns>Returns <see cref="Task{IActionResult}"/>.</returns>
+        public Task<bool> UpdateBlogArticleCommentAsync(int commentId, BlogComment comment);
+
+        /// <summary>
+        /// Deletes article comment.
+        /// </summary>
+        /// <param name="commentId">Id.</param>
+        /// <returns>Returns <see cref="Task{IActionResult}"/>.</returns>
+        public Task<bool> DeleteBlogArticleCommentAsync(int commentId);
     }
 }

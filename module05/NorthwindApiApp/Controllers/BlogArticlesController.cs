@@ -52,7 +52,7 @@ namespace NorthwindApiApp.Controllers
                 {
                     yield return new BlogArticleShortViewModel(author, article);
                 }
-                
+
             }
         }
 
@@ -66,7 +66,7 @@ namespace NorthwindApiApp.Controllers
         public async Task<ActionResult<BlogArticleFullViewModel>> GetBlogArticleAsync(int id)
         {
             BlogArticle article = await this.blogService.GetBlogArticleAsync(id);
-                  
+
             if (article != null)
             {
                 Employee author = await this.employeeService.GetEmployeeAsync(article.AuthorId);
@@ -83,7 +83,7 @@ namespace NorthwindApiApp.Controllers
         /// Creates article.
         /// </summary>
         /// <param name="article">Article to create.</param>
-        /// <returns>Created category.</returns>
+        /// <returns>Created article.</returns>
         // POST api/<BlogArticlesController>
         [HttpPost]
         public async Task<ActionResult<BlogArticle>> PostBlogArticleAsync(BlogArticle article)
@@ -179,7 +179,7 @@ namespace NorthwindApiApp.Controllers
                 if (p != null)
                 {
                     yield return p;
-                }           
+                }
             }
         }
 
@@ -188,7 +188,7 @@ namespace NorthwindApiApp.Controllers
         /// </summary>
         /// <param name="articleId">Article id.</param>
         /// <param name="productId">Product id.</param>
-        /// <returns></returns>
+        /// <returns>Created product.</returns>
         // POST api/<BlogArticlesController>/{article-id}/products/{id}
         [HttpPost("{article-id}/products/{id}")]
         public async Task<ActionResult<BlogArticleProduct>> PostRelatedProductAsync(
@@ -230,6 +230,133 @@ namespace NorthwindApiApp.Controllers
             [FromRoute(Name = "id")] int productId)
         {
             bool isDeleted = await this.blogService.DeleteRelatedProductAsync(articleId, productId);
+
+            if (isDeleted)
+            {
+                return this.NoContent();
+            }
+            else
+            {
+                return this.NotFound();
+            }
+        }
+
+        /// <summary>
+        /// Gets article comments.
+        /// </summary>
+        /// <param name="articleId">Article id.</param>
+        /// <param name="offset">Offset.</param>
+        /// <param name="limit">Limit.</param>
+        /// <returns>Comments collection.</returns>
+        // GET: api/<BlogArticlesController>/{article-id}/comments
+        [HttpGet("{article-id}/comments")]
+        public async IAsyncEnumerable<BlogComment> GetBlogArticleCommentsAsync(
+            [FromRoute(Name = "article-id")] int articleId,
+            int offset = 0,
+            int limit = 10)
+        {
+            await foreach (var comment in this.blogService.GetBlogArticleCommentsAsync(articleId, offset, limit))
+            {
+                yield return comment;
+            }
+        }
+
+        /// <summary>
+        /// Creates article.
+        /// </summary>
+        /// <param name="articleId">Article id.</param>
+        /// <param name="comment">Comment to create.</param>
+        /// <returns>Created comment.</returns>
+        // POST api/<BlogArticlesController>/{article-id}/comments
+        [HttpPost("{article-id}/comments")]
+        public async Task<ActionResult<BlogComment>> PostBlogArticleCommentAsync(
+            [FromRoute(Name = "article-id")] int articleId,
+            BlogComment comment)
+        {
+            if (comment is null || articleId != comment.ArticleId)
+            {
+                return this.BadRequest();
+            }
+
+            var article = await this.blogService.GetBlogArticleAsync(articleId);
+
+            if (article is null)
+            {
+                return this.NotFound();
+            }
+
+            comment.Posted = DateTime.Now;
+
+            int id = await this.blogService.CreateBlogArticleCommentAsync(comment);
+            if (id > 0)
+            {
+                comment.Id = id;
+                return this.CreatedAtAction(nameof(PostBlogArticleAsync), new { Id = id }, comment);
+            }
+            else
+            {
+                return this.Conflict();
+            }
+        }
+
+        /// <summary>
+        /// Updates article comment.
+        /// </summary>
+        /// <param name="articleId">Article id.</param>
+        /// /// <param name="commentId">Comment id.</param>
+        /// <param name="comment">Comment to update.</param>
+        /// <returns>Returns <see cref="Task{IActionResult}"/>.</returns>
+        // PUT api/<BlogArticlesController>/{article-id}/comments/{id}
+        [HttpPut("{article-id}/comments/{id}")]
+        public async Task<IActionResult> PutBlogArticleCommentAsync(
+            [FromRoute(Name = "article-id")] int articleId,
+            [FromRoute(Name = "id")] int commentId,
+            BlogComment comment)
+        {
+            if (comment is null || articleId != comment.ArticleId || commentId != comment.Id)
+            {
+                return this.BadRequest();
+            }
+
+            var article = await this.blogService.GetBlogArticleAsync(articleId);
+
+            if (article is null)
+            {
+                return this.NotFound();
+            }
+
+            comment.Posted = DateTime.Now;
+
+            if (await this.blogService.UpdateBlogArticleCommentAsync(commentId, comment))
+            {
+                return this.NoContent();
+            }
+            else
+            {
+                return this.NotFound();
+            }
+        }
+
+        /// <summary>
+        /// Deletes comment.
+        /// </summary>
+        /// <param name="articleId">Article id.</param>
+        /// <param name="commentId">Comment id.</param>
+        /// <returns>Returns <see cref="Task{IActionResult}"/>.</returns>
+        // DELETE api/<BlogArticlesController>/{article-id}/comments/{id}
+        [HttpDelete("{article-id}/comments/{id}")]
+        public async Task<IActionResult> DeleteBlogArticleCommentAsync(
+            [FromRoute(Name = "article-id")] int articleId,
+            [FromRoute(Name = "id")] int commentId)
+        {
+            var article = this.blogService.GetBlogArticleAsync(articleId);
+
+            if (article is null)
+            {
+                return this.NotFound();
+            }
+
+            bool isDeleted = await this.blogService.DeleteBlogArticleCommentAsync(commentId);
 
             if (isDeleted)
             {

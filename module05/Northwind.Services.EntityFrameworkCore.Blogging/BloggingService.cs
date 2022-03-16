@@ -45,6 +45,28 @@ namespace Northwind.Services.EntityFrameworkCore.Blogging
         }
 
         /// <inheritdoc/>
+        public async Task<int> CreateBlogArticleCommentAsync(BlogComment comment)
+        {
+            comment = comment ?? throw new ArgumentNullException(nameof(comment));
+
+            bool articleExists = await this.context.BlogArticles
+                .AnyAsync(a => a.Id == comment.ArticleId);
+
+            if (!articleExists)
+            {
+                return -1;
+            }
+
+            comment.Id = 0;
+            var entity = this.mapper.Map<BlogCommentEntity>(comment);
+
+            await this.context.BlogComments.AddAsync(entity);
+            await this.context.SaveChangesAsync();
+
+            return entity.Id;
+        }
+
+        /// <inheritdoc/>
         public async Task<int> CreateRelatedProductAsync(BlogArticleProduct articleProduct)
         {
             articleProduct = articleProduct ?? throw new ArgumentNullException(nameof(articleProduct));
@@ -84,6 +106,23 @@ namespace Northwind.Services.EntityFrameworkCore.Blogging
         }
 
         /// <inheritdoc/>
+        public async Task<bool> DeleteBlogArticleCommentAsync(int commentId)
+        {
+            var existingComment = await this.context.BlogComments
+                .Where(c => c.Id == commentId)
+                .FirstOrDefaultAsync();
+
+            if (existingComment != null)
+            {
+                this.context.Remove(existingComment);
+                await this.context.SaveChangesAsync();
+                return true;
+            }
+
+            return false;
+        }
+
+        /// <inheritdoc/>
         public async Task<bool> DeleteRelatedProductAsync(int articleId, int productId)
         {
             var existingProductArticle = await this.context.BlogArticleProducts
@@ -108,6 +147,20 @@ namespace Northwind.Services.EntityFrameworkCore.Blogging
                 .FirstOrDefaultAsync();
 
             return this.mapper.Map<BlogArticle>(articleEntity);
+        }
+
+        /// <inheritdoc/>
+        public async IAsyncEnumerable<BlogComment> GetBlogArticleCommentsAsync(int articleId, int offset, int limit)
+        {
+            var query = this.context.BlogComments
+                .Where(c => c.ArticleId == articleId)
+                .Skip(offset)
+                .Take(limit);
+
+            await foreach (var entity in query.AsAsyncEnumerable())
+            {
+                yield return this.mapper.Map<BlogComment>(entity);
+            }
         }
 
         /// <inheritdoc/>
@@ -148,6 +201,27 @@ namespace Northwind.Services.EntityFrameworkCore.Blogging
                 existingArticle.Text = article.Text;
                 existingArticle.Title = article.Title;
                 existingArticle.Posted = article.Posted;
+
+                await this.context.SaveChangesAsync();
+                return true;
+            }
+
+            return false;
+        }
+
+        /// <inheritdoc/>
+        public async Task<bool> UpdateBlogArticleCommentAsync(int commentId, BlogComment comment)
+        {
+            comment = comment ?? throw new ArgumentNullException(nameof(comment));
+
+            var existingComment = await this.context.BlogComments
+                .Where(c => c.Id == commentId)
+                .FirstOrDefaultAsync();
+
+            if (existingComment != null)
+            {
+                existingComment.Posted = comment.Posted;
+                existingComment.Text = comment.Text;
 
                 await this.context.SaveChangesAsync();
                 return true;
