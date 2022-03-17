@@ -318,16 +318,9 @@ namespace NorthwindApiApp.Controllers
                 return this.BadRequest();
             }
 
-            var article = await this.blogService.GetBlogArticleAsync(articleId);
-
-            if (article is null)
-            {
-                return this.NotFound();
-            }
-
             comment.Posted = DateTime.Now;
 
-            if (await this.blogService.UpdateBlogArticleCommentAsync(commentId, comment))
+            if (await this.blogService.UpdateBlogArticleCommentAsync(articleId, commentId, comment))
             {
                 return this.NoContent();
             }
@@ -349,14 +342,7 @@ namespace NorthwindApiApp.Controllers
             [FromRoute(Name = "article-id")] int articleId,
             [FromRoute(Name = "id")] int commentId)
         {
-            var article = this.blogService.GetBlogArticleAsync(articleId);
-
-            if (article is null)
-            {
-                return this.NotFound();
-            }
-
-            bool isDeleted = await this.blogService.DeleteBlogArticleCommentAsync(commentId);
+            bool isDeleted = await this.blogService.DeleteBlogArticleCommentAsync(articleId, commentId);
 
             if (isDeleted)
             {

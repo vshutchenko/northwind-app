@@ -264,10 +264,10 @@ Northwind.Services.EntityFrameworkCore.Blogging\Entities\BlogComment.cs
 
 | Operation        | HTTP Verb | URI                                      | Request body | Response body |
 | ---------------- | --------- | ---------------------------------------- | ------------ | ------------- |
-| Create           |           | /api/articles/{article-id}/comments      |              |               |
-| Read (all items) |           | /api/articles/{article-id}/comments      |              |               |
-| Update           |           | /api/articles/{article-id}/comments/{id} |              |               |
-| Delete           |           | /api/articles/{article-id}/comments/{id} |              |               |
+| Create           | POST      | /api/articles/{article-id}/comments      | Comment JSON | Comment JSON  |
+| Read (all items) | GET       | /api/articles/{article-id}/comments      | None         | Comments JSON |
+| Update           | PUT       | /api/articles/{article-id}/comments/{id} | Comment JSON | None          |
+| Delete           | DELETE    | /api/articles/{article-id}/comments/{id} | None         | None          |              |
 
 4. Реализуйте функциональность.
 

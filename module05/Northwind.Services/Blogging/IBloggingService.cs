@@ -86,16 +86,18 @@ namespace Northwind.Services.Blogging
         /// <summary>
         /// Updates article comment.
         /// </summary>
-        /// <param name="commentId">A blog article comment identifier.</param>
+        /// <param name="articleId">Article id.</param>
+        /// <param name="commentId">Comment id.</param>
         /// <param name="comment">Comment to update.</param>
         /// <returns>Returns <see cref="Task{IActionResult}"/>.</returns>
-        public Task<bool> UpdateBlogArticleCommentAsync(int commentId, BlogComment comment);
+        public Task<bool> UpdateBlogArticleCommentAsync(int articleId, int commentId, BlogComment comment);
 
         /// <summary>
         /// Deletes article comment.
         /// </summary>
-        /// <param name="commentId">Id.</param>
+        /// <param name="articleId">Article id.</param>
+        /// <param name="commentId">Comment id.</param>
         /// <returns>Returns <see cref="Task{IActionResult}"/>.</returns>
-        public Task<bool> DeleteBlogArticleCommentAsync(int commentId);
+        public Task<bool> DeleteBlogArticleCommentAsync(int articleId, int commentId);
     }
 }

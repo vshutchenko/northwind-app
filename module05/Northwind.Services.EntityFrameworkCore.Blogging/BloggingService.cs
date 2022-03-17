@@ -106,10 +106,10 @@ namespace Northwind.Services.EntityFrameworkCore.Blogging
         }
 
         /// <inheritdoc/>
-        public async Task<bool> DeleteBlogArticleCommentAsync(int commentId)
+        public async Task<bool> DeleteBlogArticleCommentAsync(int articleId, int commentId)
         {
             var existingComment = await this.context.BlogComments
-                .Where(c => c.Id == commentId)
+                .Where(c => c.ArticleId == articleId && c.Id == commentId)
                 .FirstOrDefaultAsync();
 
             if (existingComment != null)
@@ -210,12 +210,12 @@ namespace Northwind.Services.EntityFrameworkCore.Blogging
         }
 
         /// <inheritdoc/>
-        public async Task<bool> UpdateBlogArticleCommentAsync(int commentId, BlogComment comment)
+        public async Task<bool> UpdateBlogArticleCommentAsync(int articleId, int commentId, BlogComment comment)
         {
             comment = comment ?? throw new ArgumentNullException(nameof(comment));
 
             var existingComment = await this.context.BlogComments
-                .Where(c => c.Id == commentId)
+                .Where(c => c.ArticleId == articleId && c.Id == commentId)
                 .FirstOrDefaultAsync();
 
             if (existingComment != null)
