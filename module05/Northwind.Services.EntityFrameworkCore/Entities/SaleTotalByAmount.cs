@@ -8,11 +8,16 @@ using System.ComponentModel.DataAnnotations.Schema;
 // #nullable disable
 namespace Northwind.Services.EntityFrameworkCore.Entities
 {
-    public partial class OrderSubtotals
+    public partial class SaleTotalByAmount
     {
+        [Column(TypeName = "money")]
+        public decimal? SaleAmount { get; set; }
         [Column("OrderID")]
         public int OrderId { get; set; }
-        [Column(TypeName = "money")]
-        public decimal? Subtotal { get; set; }
+        [Required]
+        [StringLength(40)]
+        public string CompanyName { get; set; }
+        [Column(TypeName = "datetime")]
+        public DateTime? ShippedDate { get; set; }
     }
 }

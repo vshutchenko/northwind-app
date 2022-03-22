@@ -7,11 +7,11 @@ using System.ComponentModel.DataAnnotations.Schema;
 // #nullable disable
 namespace Northwind.Services.EntityFrameworkCore.Entities
 {
-    public partial class CategoriesEntity
+    public partial class CategoryEntity
     {
-        public CategoriesEntity()
+        public CategoryEntity()
         {
-            this.Products = new HashSet<ProductsEntity>();
+            this.Products = new HashSet<ProductEntity>();
         }
 
         [Key]
@@ -27,6 +27,6 @@ namespace Northwind.Services.EntityFrameworkCore.Entities
         public byte[] Picture { get; set; }
 
         [InverseProperty("Category")]
-        public virtual ICollection<ProductsEntity> Products { get; set; }
+        public virtual ICollection<ProductEntity> Products { get; set; }
     }
 }

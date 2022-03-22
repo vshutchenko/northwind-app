@@ -8,11 +8,11 @@ using System.ComponentModel.DataAnnotations.Schema;
 // #nullable disable
 namespace Northwind.Services.EntityFrameworkCore.Entities
 {
-    public partial class Suppliers
+    public partial class Supplier
     {
-        public Suppliers()
+        public Supplier()
         {
-            this.Products = new HashSet<ProductsEntity>();
+            this.Products = new HashSet<ProductEntity>();
         }
 
         [Key]
@@ -43,6 +43,6 @@ namespace Northwind.Services.EntityFrameworkCore.Entities
         public string HomePage { get; set; }
 
         [InverseProperty("Supplier")]
-        public virtual ICollection<ProductsEntity> Products { get; set; }
+        public virtual ICollection<ProductEntity> Products { get; set; }
     }
 }

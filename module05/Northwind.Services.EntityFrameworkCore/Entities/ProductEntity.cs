@@ -8,11 +8,11 @@ using System.ComponentModel.DataAnnotations.Schema;
 // #nullable disable
 namespace Northwind.Services.EntityFrameworkCore.Entities
 {
-    public partial class ProductsEntity
+    public partial class ProductEntity
     {
-        public ProductsEntity()
+        public ProductEntity()
         {
-            this.OrderDetails = new HashSet<OrderDetails>();
+            this.OrderDetails = new HashSet<OrderDetail>();
         }
 
         [Key]
@@ -36,12 +36,12 @@ namespace Northwind.Services.EntityFrameworkCore.Entities
         public bool Discontinued { get; set; }
 
         [ForeignKey(nameof(CategoryId))]
-        [InverseProperty(nameof(CategoriesEntity.Products))]
-        public virtual CategoriesEntity Category { get; set; }
+        [InverseProperty(nameof(CategoryEntity.Products))]
+        public virtual CategoryEntity Category { get; set; }
         [ForeignKey(nameof(SupplierId))]
-        [InverseProperty(nameof(Suppliers.Products))]
-        public virtual Suppliers Supplier { get; set; }
+        [InverseProperty(nameof(Entities.Supplier.Products))]
+        public virtual Supplier Supplier { get; set; }
         [InverseProperty("Product")]
-        public virtual ICollection<OrderDetails> OrderDetails { get; set; }
+        public virtual ICollection<OrderDetail> OrderDetails { get; set; }
     }
 }

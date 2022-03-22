@@ -36,7 +36,7 @@ namespace Northwind.Services.EntityFrameworkCore.Services
             employee = employee ?? throw new ArgumentNullException(nameof(employee));
 
             employee.Id = this.GenerateEmployeeId();
-            await this.context.Employees.AddAsync(this.mapper.Map<EmployeesEntity>(employee));
+            await this.context.Employees.AddAsync(this.mapper.Map<EmployeeEntity>(employee));
             await this.context.SaveChangesAsync();
 
             return employee.Id;

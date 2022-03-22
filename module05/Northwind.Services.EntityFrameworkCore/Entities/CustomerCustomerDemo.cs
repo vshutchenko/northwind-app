@@ -20,8 +20,8 @@ namespace Northwind.Services.EntityFrameworkCore.Entities
         public string CustomerTypeId { get; set; }
 
         [ForeignKey(nameof(CustomerId))]
-        [InverseProperty(nameof(Customers.CustomerCustomerDemo))]
-        public virtual Customers Customer { get; set; }
+        [InverseProperty(nameof(Entities.Customer.CustomerCustomerDemo))]
+        public virtual Customer Customer { get; set; }
         [ForeignKey(nameof(CustomerTypeId))]
         [InverseProperty(nameof(CustomerDemographics.CustomerCustomerDemo))]
         public virtual CustomerDemographics CustomerType { get; set; }

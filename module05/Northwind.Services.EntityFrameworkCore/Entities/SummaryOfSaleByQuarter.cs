@@ -8,7 +8,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 // #nullable disable
 namespace Northwind.Services.EntityFrameworkCore.Entities
 {
-    public partial class SummaryOfSalesByQuarter
+    public partial class SummaryOfSaleByQuarter
     {
         [Column(TypeName = "datetime")]
         public DateTime? ShippedDate { get; set; }

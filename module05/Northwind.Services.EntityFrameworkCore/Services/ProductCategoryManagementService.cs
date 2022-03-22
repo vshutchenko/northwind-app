@@ -36,8 +36,8 @@ namespace Northwind.Services.EntityFrameworkCore.Services
             productCategory = productCategory ?? throw new ArgumentNullException(nameof(productCategory));
 
             productCategory.Id = this.GenerateCategoryId();
-            var a = this.mapper.Map<CategoriesEntity>(productCategory);
-            await this.context.Categories.AddAsync(this.mapper.Map<ProductCategory, CategoriesEntity>(productCategory));
+            var a = this.mapper.Map<CategoryEntity>(productCategory);
+            await this.context.Categories.AddAsync(this.mapper.Map<ProductCategory, CategoryEntity>(productCategory));
             await this.context.SaveChangesAsync();
 
             return productCategory.Id;

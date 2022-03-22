@@ -36,7 +36,7 @@ namespace Northwind.Services.EntityFrameworkCore.Services
             product = product ?? throw new ArgumentNullException(nameof(product));
 
             product.Id = this.GenerateProductId();
-            await this.context.Products.AddAsync(this.mapper.Map<ProductsEntity>(product));
+            await this.context.Products.AddAsync(this.mapper.Map<ProductEntity>(product));
             await this.context.SaveChangesAsync();
 
             return product.Id;

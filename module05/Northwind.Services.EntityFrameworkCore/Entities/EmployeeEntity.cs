@@ -8,13 +8,13 @@ using System.ComponentModel.DataAnnotations.Schema;
 // #nullable disable
 namespace Northwind.Services.EntityFrameworkCore.Entities
 {
-    public partial class EmployeesEntity
+    public partial class EmployeeEntity
     {
-        public EmployeesEntity()
+        public EmployeeEntity()
         {
-            this.EmployeeTerritories = new HashSet<EmployeeTerritories>();
-            this.InverseReportsToNavigation = new HashSet<EmployeesEntity>();
-            this.Orders = new HashSet<Orders>();
+            this.EmployeeTerritories = new HashSet<EmployeeTerritory>();
+            this.InverseReportsToNavigation = new HashSet<EmployeeEntity>();
+            this.Orders = new HashSet<Order>();
         }
 
         [Key]
@@ -57,13 +57,13 @@ namespace Northwind.Services.EntityFrameworkCore.Entities
         public string PhotoPath { get; set; }
 
         [ForeignKey(nameof(ReportsTo))]
-        [InverseProperty(nameof(EmployeesEntity.InverseReportsToNavigation))]
-        public virtual EmployeesEntity ReportsToNavigation { get; set; }
+        [InverseProperty(nameof(EmployeeEntity.InverseReportsToNavigation))]
+        public virtual EmployeeEntity ReportsToNavigation { get; set; }
         [InverseProperty("Employee")]
-        public virtual ICollection<EmployeeTerritories> EmployeeTerritories { get; set; }
-        [InverseProperty(nameof(EmployeesEntity.ReportsToNavigation))]
-        public virtual ICollection<EmployeesEntity> InverseReportsToNavigation { get; set; }
+        public virtual ICollection<EmployeeTerritory> EmployeeTerritories { get; set; }
+        [InverseProperty(nameof(EmployeeEntity.ReportsToNavigation))]
+        public virtual ICollection<EmployeeEntity> InverseReportsToNavigation { get; set; }
         [InverseProperty("Employee")]
-        public virtual ICollection<Orders> Orders { get; set; }
+        public virtual ICollection<Order> Orders { get; set; }
     }
 }

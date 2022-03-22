@@ -2,20 +2,20 @@
 using Northwind.Services.Employees;
 using System;
 
-namespace NorthwindApiApp.ViewModels
+namespace NorthwindApiApp.Models
 {
     /// <summary>
-    /// Contains full information about article.
+    ///  Contains short information about article.
     /// </summary>
-    public class BlogArticleFullViewModel
+    public class BlogArticleShortInfo
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="BlogArticleFullViewModel"/> class.
+        /// Initializes a new instance of the <see cref="BlogArticleShortInfo"/> class.
         /// </summary>
         /// <param name="author">Author.</param>
         /// <param name="article">Article.</param>
         /// <exception cref="ArgumentNullException">Throws if one of parameters is null.</exception>
-        public BlogArticleFullViewModel(Employee author, BlogArticle article)
+        public BlogArticleShortInfo(Employee author, BlogArticle article)
         {
             author = author ?? throw new ArgumentNullException(nameof(author));
             article = article ?? throw new ArgumentNullException(nameof(article));
@@ -23,10 +23,9 @@ namespace NorthwindApiApp.ViewModels
             this.Id = article.Id;
             this.Title = article.Title;
             this.Posted = article.Posted;
-            this.Text = article.Text;
 
             this.AuthorId = author.Id;
-            this.AuthorName = author.Title is null
+            this.AuthorName = author.Title is null 
                 ? $"{author.FirstName} {author.LastName}"
                 : $"{author.FirstName} {author.LastName}, {author.Title}";
         }
@@ -55,10 +54,5 @@ namespace NorthwindApiApp.ViewModels
         /// Gets author name.
         /// </summary>
         public string AuthorName { get; }
-
-        /// <summary>
-        /// Gets text.
-        /// </summary>
-        public string Text { get; }
     }
 }

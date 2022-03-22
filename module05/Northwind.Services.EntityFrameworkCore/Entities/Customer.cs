@@ -8,12 +8,12 @@ using System.ComponentModel.DataAnnotations.Schema;
 // #nullable disable
 namespace Northwind.Services.EntityFrameworkCore.Entities
 {
-    public partial class Customers
+    public partial class Customer
     {
-        public Customers()
+        public Customer()
         {
             this.CustomerCustomerDemo = new HashSet<CustomerCustomerDemo>();
-            this.Orders = new HashSet<Orders>();
+            this.Orders = new HashSet<Order>();
         }
 
         [Key]
@@ -45,6 +45,6 @@ namespace Northwind.Services.EntityFrameworkCore.Entities
         [InverseProperty("Customer")]
         public virtual ICollection<CustomerCustomerDemo> CustomerCustomerDemo { get; set; }
         [InverseProperty("Customer")]
-        public virtual ICollection<Orders> Orders { get; set; }
+        public virtual ICollection<Order> Orders { get; set; }
     }
 }

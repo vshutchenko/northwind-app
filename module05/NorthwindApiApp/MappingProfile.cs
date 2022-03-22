@@ -19,28 +19,17 @@ namespace NorthwindApiApp
         /// </summary>
         public MappingProfile()
         {
-            this.CreateMap<Employee, EmployeeTransferObject>();
-            this.CreateMap<EmployeeTransferObject, Employee>();
-            this.CreateMap<Product, ProductTransferObject>();
-            this.CreateMap<ProductTransferObject, Product>();
-            this.CreateMap<ProductCategory, ProductCategoryTransferObject>();
-            this.CreateMap<ProductCategoryTransferObject, ProductCategory>();
+            this.CreateMap<Employee, EmployeeTransferObject>().ReverseMap();
+            this.CreateMap<Product, ProductTransferObject>().ReverseMap();
+            this.CreateMap<ProductCategory, ProductCategoryTransferObject>().ReverseMap();
 
-            this.CreateMap<Employee, EmployeesEntity>();
-            this.CreateMap<EmployeesEntity, Employee>();
-            this.CreateMap<Product, ProductsEntity>();
-            this.CreateMap<ProductsEntity, Product>();
-            this.CreateMap<ProductCategory, CategoriesEntity>();
-            this.CreateMap<CategoriesEntity, ProductCategory>();
+            this.CreateMap<Employee, EmployeeEntity>().ReverseMap();
+            this.CreateMap<Product, ProductEntity>().ReverseMap();
+            this.CreateMap<ProductCategory, CategoryEntity>().ReverseMap();
 
-            this.CreateMap<BlogArticle, BlogArticleEntity>();
-            this.CreateMap<BlogArticleEntity, BlogArticle>();
-
-            this.CreateMap<BlogArticleProduct, BlogArticleProductEntity>();
-            this.CreateMap<BlogArticleProductEntity, BlogArticleProduct>();
-
-            this.CreateMap<BlogComment, BlogCommentEntity>();
-            this.CreateMap<BlogCommentEntity, BlogComment>();
+            this.CreateMap<BlogArticle, BlogArticleEntity>().ReverseMap();
+            this.CreateMap<BlogArticleProduct, BlogArticleProductEntity>().ReverseMap();
+            this.CreateMap<BlogComment, BlogCommentEntity>().ReverseMap();
         }
     }
 }

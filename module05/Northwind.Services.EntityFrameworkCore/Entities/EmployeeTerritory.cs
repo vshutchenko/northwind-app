@@ -8,7 +8,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 // #nullable disable
 namespace Northwind.Services.EntityFrameworkCore.Entities
 {
-    public partial class EmployeeTerritories
+    public partial class EmployeeTerritory
     {
         [Key]
         [Column("EmployeeID")]
@@ -19,10 +19,10 @@ namespace Northwind.Services.EntityFrameworkCore.Entities
         public string TerritoryId { get; set; }
 
         [ForeignKey(nameof(EmployeeId))]
-        [InverseProperty(nameof(EmployeesEntity.EmployeeTerritories))]
-        public virtual EmployeesEntity Employee { get; set; }
+        [InverseProperty(nameof(EmployeeEntity.EmployeeTerritories))]
+        public virtual EmployeeEntity Employee { get; set; }
         [ForeignKey(nameof(TerritoryId))]
-        [InverseProperty(nameof(Territories.EmployeeTerritories))]
-        public virtual Territories Territory { get; set; }
+        [InverseProperty(nameof(Entities.Territory.EmployeeTerritories))]
+        public virtual Territory Territory { get; set; }
     }
 }

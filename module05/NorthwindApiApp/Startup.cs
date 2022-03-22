@@ -1,24 +1,8 @@
-﻿using System.Data.SqlClient;
-using System.Globalization;
-using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.OpenApi.Models;
-using Northwind.Services.Products;
-using Northwind.DataAccess;
-using Northwind.DataAccess.SqlServer;
-using Northwind.Services.DataAccess.Services;
-using Northwind.Services.EntityFrameworkCore.Services;
-using Northwind.Services.Employees;
-using Microsoft.EntityFrameworkCore;
-using AutoMapper;
-using Northwind.Services.EntityFrameworkCore.Context;
-using Northwind.Services.EntityFrameworkCore.Blogging.Context;
-using Northwind.Services.EntityFrameworkCore.Blogging;
-using Northwind.Services.Blogging;
-using System;
 
 #pragma warning disable CA1822 // Mark members as static
 namespace NorthwindApiApp
@@ -47,50 +31,15 @@ namespace NorthwindApiApp
         /// </summary>
         /// <param name="services">Services.</param>
         public void ConfigureServices(IServiceCollection services)
-        {
+        {            
             if (this.Configuration["ServiceType"] == "InMemory")
             {
-                services
-               .AddSwaggerGen(c => c.SwaggerDoc("v1", new OpenApiInfo { Title = "NorthwindApiApp", Version = "v1" }))
-               .AddDbContext<NorthwindContext>(opt => opt.UseInMemoryDatabase("Northwind"))
-               .AddScoped<IBloggingService, BloggingService>()
-               .AddScoped<IEmployeeManagementService, EmployeeManagementService>()
-               .AddScoped<IProductManagementService, ProductManagementService>()
-               .AddScoped<IProductCategoryManagementService, ProductCategoryManagementService>()
-               .AddScoped<IProductCategoryPicturesService>(provider =>
-                   new ProductCategoryPicturesService(
-                       provider.GetService<NorthwindContext>(),
-                       int.Parse(this.Configuration["PictureService:MaxFileSize"], CultureInfo.InvariantCulture)))
-               .AddScoped(provider => new MapperConfiguration(mc => mc.AddProfile(new MappingProfile())).CreateMapper())
-               .AddDbContext<BloggingContext>(options => options.UseSqlServer(Environment.GetEnvironmentVariable("SQLCONNSTR_NORTHWIND_BLOGGING")))
-               .AddControllers(options =>
-               {
-                   options.SuppressAsyncSuffixInActionNames = false;
-               });
-
+                services.UseInMemoryServices(this.Configuration);
             }
             else if (this.Configuration["ServiceType"] == "Northwind")
             {
-                services
-               .AddSwaggerGen(c => c.SwaggerDoc("v1", new OpenApiInfo { Title = "NorthwindApiApp", Version = "v1" }))
-               .AddScoped<NorthwindDataAccessFactory, SqlServerDataAccessFactory>()
-               .AddScoped<IBloggingService, BloggingService>()
-               .AddScoped<IEmployeeManagementService, EmployeeManagementDataAccessService>()
-               .AddScoped<IProductManagementService, ProductManagementDataAccessService>()
-               .AddScoped<IProductCategoryManagementService, ProductCategoriesManagementDataAccessService>()
-               .AddScoped<IProductCategoryPicturesService>(provider =>
-                   new ProductCategoryPicturesManagementDataAccessService(
-                       provider.GetService<NorthwindDataAccessFactory>(),
-                       int.Parse(this.Configuration["PictureService:MaxFileSize"], CultureInfo.InvariantCulture)))
-               .AddScoped(provider => new SqlConnection(this.Configuration.GetConnectionString("SqlService")))
-               .AddScoped(provider => new MapperConfiguration(mc => mc.AddProfile(new MappingProfile())).CreateMapper())
-               .AddDbContext<BloggingContext>(options => options.UseSqlServer(Environment.GetEnvironmentVariable("SQLCONNSTR_NORTHWIND_BLOGGING")))
-               .AddControllers(options =>
-               {
-                   options.SuppressAsyncSuffixInActionNames = false;
-               });
+                services.UseNorthwindServices(this.Configuration);
             }
-
         }
 
         /// <summary>

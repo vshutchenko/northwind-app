@@ -8,7 +8,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 // #nullable disable
 namespace Northwind.Services.EntityFrameworkCore.Entities
 {
-    public partial class CategorySalesFor1997
+    public partial class CategorySaleFor1997
     {
         [Required]
         [StringLength(15)]

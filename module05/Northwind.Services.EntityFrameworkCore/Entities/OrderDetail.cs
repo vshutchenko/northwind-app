@@ -9,7 +9,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace Northwind.Services.EntityFrameworkCore.Entities
 {
     [Table("Order Details")]
-    public partial class OrderDetails
+    public partial class OrderDetail
     {
         [Key]
         [Column("OrderID")]
@@ -23,10 +23,10 @@ namespace Northwind.Services.EntityFrameworkCore.Entities
         public float Discount { get; set; }
 
         [ForeignKey(nameof(OrderId))]
-        [InverseProperty(nameof(Orders.OrderDetails))]
-        public virtual Orders Order { get; set; }
+        [InverseProperty(nameof(Entities.Order.OrderDetails))]
+        public virtual Order Order { get; set; }
         [ForeignKey(nameof(ProductId))]
-        [InverseProperty(nameof(ProductsEntity.OrderDetails))]
-        public virtual ProductsEntity Product { get; set; }
+        [InverseProperty(nameof(ProductEntity.OrderDetails))]
+        public virtual ProductEntity Product { get; set; }
     }
 }

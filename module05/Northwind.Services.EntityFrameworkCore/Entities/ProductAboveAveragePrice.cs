@@ -8,17 +8,12 @@ using System.ComponentModel.DataAnnotations.Schema;
 // #nullable disable
 namespace Northwind.Services.EntityFrameworkCore.Entities
 {
-    public partial class SalesByCategory
+    public partial class ProductAboveAveragePrice
     {
-        [Column("CategoryID")]
-        public int CategoryId { get; set; }
-        [Required]
-        [StringLength(15)]
-        public string CategoryName { get; set; }
         [Required]
         [StringLength(40)]
         public string ProductName { get; set; }
         [Column(TypeName = "money")]
-        public decimal? ProductSales { get; set; }
+        public decimal? UnitPrice { get; set; }
     }
 }

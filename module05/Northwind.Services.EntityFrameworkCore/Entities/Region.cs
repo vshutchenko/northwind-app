@@ -12,7 +12,7 @@ namespace Northwind.Services.EntityFrameworkCore.Entities
     {
         public Region()
         {
-            this.Territories = new HashSet<Territories>();
+            this.Territories = new HashSet<Territory>();
         }
 
         [Key]
@@ -23,6 +23,6 @@ namespace Northwind.Services.EntityFrameworkCore.Entities
         public string RegionDescription { get; set; }
 
         [InverseProperty("Region")]
-        public virtual ICollection<Territories> Territories { get; set; }
+        public virtual ICollection<Territory> Territories { get; set; }
     }
 }

@@ -8,11 +8,11 @@ using System.ComponentModel.DataAnnotations.Schema;
 // #nullable disable
 namespace Northwind.Services.EntityFrameworkCore.Entities
 {
-    public partial class Orders
+    public partial class Order
     {
-        public Orders()
+        public Order()
         {
-            this.OrderDetails = new HashSet<OrderDetails>();
+            this.OrderDetails = new HashSet<OrderDetail>();
         }
 
         [Key]
@@ -46,15 +46,15 @@ namespace Northwind.Services.EntityFrameworkCore.Entities
         public string ShipCountry { get; set; }
 
         [ForeignKey(nameof(CustomerId))]
-        [InverseProperty(nameof(Customers.Orders))]
-        public virtual Customers Customer { get; set; }
+        [InverseProperty(nameof(Entities.Customer.Orders))]
+        public virtual Customer Customer { get; set; }
         [ForeignKey(nameof(EmployeeId))]
-        [InverseProperty(nameof(EmployeesEntity.Orders))]
-        public virtual EmployeesEntity Employee { get; set; }
+        [InverseProperty(nameof(EmployeeEntity.Orders))]
+        public virtual EmployeeEntity Employee { get; set; }
         [ForeignKey(nameof(ShipVia))]
-        [InverseProperty(nameof(Shippers.Orders))]
-        public virtual Shippers ShipViaNavigation { get; set; }
+        [InverseProperty(nameof(Shipper.Orders))]
+        public virtual Shipper ShipViaNavigation { get; set; }
         [InverseProperty("Order")]
-        public virtual ICollection<OrderDetails> OrderDetails { get; set; }
+        public virtual ICollection<OrderDetail> OrderDetails { get; set; }
     }
 }

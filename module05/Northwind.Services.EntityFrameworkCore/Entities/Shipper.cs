@@ -8,16 +8,23 @@ using System.ComponentModel.DataAnnotations.Schema;
 // #nullable disable
 namespace Northwind.Services.EntityFrameworkCore.Entities
 {
-    public partial class QuarterlyOrders
+    public partial class Shipper
     {
-        [Column("CustomerID")]
-        [StringLength(5)]
-        public string CustomerId { get; set; }
+        public Shipper()
+        {
+            this.Orders = new HashSet<Order>();
+        }
+
+        [Key]
+        [Column("ShipperID")]
+        public int ShipperId { get; set; }
+        [Required]
         [StringLength(40)]
         public string CompanyName { get; set; }
-        [StringLength(15)]
-        public string City { get; set; }
-        [StringLength(15)]
-        public string Country { get; set; }
+        [StringLength(24)]
+        public string Phone { get; set; }
+
+        [InverseProperty("ShipViaNavigation")]
+        public virtual ICollection<Order> Orders { get; set; }
     }
 }

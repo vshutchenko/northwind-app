@@ -9,11 +9,11 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Northwind.Services.EntityFrameworkCore.Entities
 {
-    public partial class Territories
+    public partial class Territory
     {
-        public Territories()
+        public Territory()
         {
-            this.EmployeeTerritories = new HashSet<EmployeeTerritories>();
+            this.EmployeeTerritories = new HashSet<EmployeeTerritory>();
         }
 
         [Key]
@@ -30,6 +30,6 @@ namespace Northwind.Services.EntityFrameworkCore.Entities
         [InverseProperty("Territories")]
         public virtual Region Region { get; set; }
         [InverseProperty("Territory")]
-        public virtual ICollection<EmployeeTerritories> EmployeeTerritories { get; set; }
+        public virtual ICollection<EmployeeTerritory> EmployeeTerritories { get; set; }
     }
 }
