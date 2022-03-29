@@ -1,14 +1,8 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
 
 namespace NorthwindMvcApp
 {
@@ -24,7 +18,16 @@ namespace NorthwindMvcApp
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddControllersWithViews();
+            services.AddRazorPages().AddRazorRuntimeCompilation();
+
+            if (this.Configuration["ServiceType"] == "InMemory")
+            {
+                services.UseInMemoryServices(this.Configuration);
+            }
+            else if (this.Configuration["ServiceType"] == "Northwind")
+            {
+                services.UseNorthwindServices(this.Configuration);
+            }
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

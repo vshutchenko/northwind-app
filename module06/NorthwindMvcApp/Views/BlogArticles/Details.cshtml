@@ -1,43 +1,43 @@
-﻿@model Northwind.Services.Blogging.BlogArticle
+﻿@model BlogArticleDetailsViewModel
 
 @{
     ViewData["Title"] = "Details";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h1>Details</h1>
+
 
 <div>
-    <h4>BlogArticle</h4>
+    <h1>@Model.Title</h1>
     <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Title)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Title)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Text)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Text)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Posted)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Posted)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.AuthorId)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.AuthorId)
-        </dd>
-    </dl>
+    <img src="data:image;base64,@Convert.ToBase64String(@Model.AuthorPhoto[78..])" width="60" height="60" />
+    <h4>@Model.AuthorName, @Model.Posted.ToShortDateString()</h4>
+    <p>@Model.Text</p>
+    <div>
+        <div>
+            <h1>Leave a comment...</h1>
+            <hr />
+            @await Html.PartialAsync("~/Views/Shared/Components/CommentForm.cshtml", new @BlogCommentViewModel() { ArticleId = @Model.Id})
+
+        </div>
+    </div>
+
+    <h1>Comments</h1>
+    <hr />
+    @foreach (var comment in Model?.Comments)
+    {
+        <div class="card" style="margin-bottom: 10px">
+            <div class="card-body">
+                <h5 class="card-title">AuthorId: @comment.AuthorId</h5>
+                <p class="card-text">@comment.Text</p>
+                <p class="card-text">@comment.Posted</p>
+                @*<a href="#" class="btn btn-primary">Go somewhere</a>*@
+            </div>
+        </div>
+    }
 </div>
-<div>
-    <a asp-action="Edit" asp-route-id="@Model.Id">Edit</a> |
-    <a asp-action="Index">Back to List</a>
-</div>
+@section Scripts {
+    @{
+    await Html.RenderPartialAsync("_ValidationScriptsPartial");
+}
+}

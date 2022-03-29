@@ -1,17 +1,17 @@
-﻿@model Northwind.Services.Blogging.BlogArticle
+﻿@model BlogArticleViewModel
 
 @{
     ViewData["Title"] = "Create";
     Layout = "~/Views/Shared/_Layout.cshtml";
+    BlogCommentViewModel comment = new BlogCommentViewModel();
 }
 
-<h1>Create</h1>
+<h1>Create article</h1>
 
-<h4>BlogArticle</h4>
 <hr />
 <div class="row">
     <div class="col-md-4">
-        <form asp-action="Create">
+        <form asp-action="Create" >
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
                 <label asp-for="Title" class="control-label"></label>
@@ -20,13 +20,8 @@
             </div>
             <div class="form-group">
                 <label asp-for="Text" class="control-label"></label>
-                <input asp-for="Text" class="form-control" />
+                <textarea asp-for="Text" class="form-control"></textarea>
                 <span asp-validation-for="Text" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Posted" class="control-label"></label>
-                <input asp-for="Posted" class="form-control" />
-                <span asp-validation-for="Posted" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="AuthorId" class="control-label"></label>
