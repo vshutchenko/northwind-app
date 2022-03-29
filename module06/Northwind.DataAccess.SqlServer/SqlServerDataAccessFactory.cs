@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Data.SqlClient;
+using Northwind.DataAccess.Customers;
 using Northwind.DataAccess.Employees;
 using Northwind.DataAccess.Products;
+using Northwind.DataAccess.SqlServer.Customers;
 using Northwind.DataAccess.SqlServer.Employees;
 using Northwind.DataAccess.SqlServer.Products;
 
@@ -39,6 +41,12 @@ namespace Northwind.DataAccess.SqlServer
         public override IEmployeeDataAccessObject GetEmployeeDataAccessObject()
         {
             return new EmployeeSqlServerDataAccessObject(this.sqlConnection);
+        }
+
+        /// <inheritdoc />
+        public override ICustomerDataAccessObject GetCustomerDataAccessObject()
+        {
+            return new CustomerSqlServerDataAccessObject(this.sqlConnection);
         }
     }
 }

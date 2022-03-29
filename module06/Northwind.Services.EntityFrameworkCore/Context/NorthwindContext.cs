@@ -26,7 +26,7 @@ namespace Northwind.Services.EntityFrameworkCore.Context
         public virtual DbSet<CustomerAndSupplierByCity> CustomerAndSuppliersByCity { get; set; }
         public virtual DbSet<CustomerCustomerDemo> CustomerCustomerDemo { get; set; }
         public virtual DbSet<CustomerDemographics> CustomerDemographics { get; set; }
-        public virtual DbSet<Customer> Customers { get; set; }
+        public virtual DbSet<CustomerEntity> Customers { get; set; }
         public virtual DbSet<EmployeeTerritory> EmployeeTerritories { get; set; }
         public virtual DbSet<EmployeeEntity> Employees { get; set; }
         public virtual DbSet<Invoice> Invoices { get; set; }
@@ -119,7 +119,7 @@ namespace Northwind.Services.EntityFrameworkCore.Context
                 entity.Property(e => e.CustomerTypeId).IsFixedLength();
             });
 
-            modelBuilder.Entity<Customer>(entity =>
+            modelBuilder.Entity<CustomerEntity>(entity =>
             {
                 entity.HasIndex(e => e.City)
                     .HasName("City");
@@ -133,7 +133,7 @@ namespace Northwind.Services.EntityFrameworkCore.Context
                 entity.HasIndex(e => e.Region)
                     .HasName("Region");
 
-                entity.Property(e => e.CustomerId).IsFixedLength();
+                entity.Property(e => e.Id).IsFixedLength();
             });
 
             modelBuilder.Entity<EmployeeTerritory>(entity =>

@@ -8,9 +8,9 @@ using System.ComponentModel.DataAnnotations.Schema;
 // #nullable disable
 namespace Northwind.Services.EntityFrameworkCore.Entities
 {
-    public partial class Customer
+    public partial class CustomerEntity
     {
-        public Customer()
+        public CustomerEntity()
         {
             this.CustomerCustomerDemo = new HashSet<CustomerCustomerDemo>();
             this.Orders = new HashSet<Order>();
@@ -19,7 +19,7 @@ namespace Northwind.Services.EntityFrameworkCore.Entities
         [Key]
         [Column("CustomerID")]
         [StringLength(5)]
-        public string CustomerId { get; set; }
+        public string Id { get; set; }
         [Required]
         [StringLength(40)]
         public string CompanyName { get; set; }
