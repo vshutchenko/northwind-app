@@ -35,7 +35,7 @@ namespace NorthwindApiApp.Controllers
         // GET: api/<CustomersController>
         [HttpGet]
         public async IAsyncEnumerable<Customer> GetCustomersAsync(int offset = 0, int limit = 10)
-        {
+        {      
             await foreach (var customer in this.service.GetCustomersAsync(offset, limit))
             {
                 yield return customer;

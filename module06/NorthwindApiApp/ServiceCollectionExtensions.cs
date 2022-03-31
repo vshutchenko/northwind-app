@@ -15,6 +15,7 @@ using Northwind.Services.EntityFrameworkCore.Blogging.Context;
 using Northwind.Services.EntityFrameworkCore.Blogging;
 using Northwind.Services.Blogging;
 using System;
+using Northwind.Services.Customers;
 
 namespace NorthwindApiApp
 {
@@ -32,6 +33,7 @@ namespace NorthwindApiApp
         {
             services
                .AddScoped<NorthwindDataAccessFactory, SqlServerDataAccessFactory>()
+               .AddScoped<ICustomerManagementService, CustomerManagementDataAccessService>()
                .AddScoped<IBloggingService, BloggingService>()
                .AddScoped<IEmployeeManagementService, EmployeeManagementDataAccessService>()
                .AddScoped<IProductManagementService, ProductManagementDataAccessService>()
@@ -59,6 +61,7 @@ namespace NorthwindApiApp
             services
                .AddDbContext<NorthwindContext>(opt => opt.UseInMemoryDatabase("Northwind"))
                .AddScoped<IBloggingService, BloggingService>()
+               .AddScoped<ICustomerManagementService, CustomerManagementService>()
                .AddScoped<IEmployeeManagementService, EmployeeManagementService>()
                .AddScoped<IProductManagementService, ProductManagementService>()
                .AddScoped<IProductCategoryManagementService, ProductCategoryManagementService>()

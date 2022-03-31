@@ -16,12 +16,12 @@ namespace NorthwindMvcApp.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly ILogger<HomeController> _logger;
+        private readonly ILogger<HomeController> logger;
         private readonly HttpClient httpClient = new HttpClient();
 
         public HomeController(ILogger<HomeController> logger)
         {
-            _logger = logger ;
+            this.logger = logger ;
             this.httpClient = new HttpClient()
             {
                 BaseAddress = new Uri("http://localhost:5000/"),

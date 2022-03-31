@@ -15,6 +15,8 @@ using Northwind.Services.EntityFrameworkCore.Blogging.Context;
 using Northwind.Services.EntityFrameworkCore.Blogging;
 using Northwind.Services.Blogging;
 using System;
+using NorthwindMvcApp.Models;
+using Microsoft.AspNetCore.Authentication.Cookies;
 
 namespace NorthwindMvcApp
 {
@@ -44,10 +46,18 @@ namespace NorthwindMvcApp
                .AddScoped(provider => new SqlConnection(configuration.GetConnectionString("SqlService")))
                .AddScoped(provider => new MapperConfiguration(mc => mc.AddProfile(new MappingProfile())).CreateMapper())
                .AddDbContext<BloggingContext>(options => options.UseSqlServer(Environment.GetEnvironmentVariable("SQLCONNSTR_NORTHWIND_BLOGGING")))
-               .AddControllers(options =>
-               {
-                   options.SuppressAsyncSuffixInActionNames = false;
-               });
+               .AddDbContext<IdentityContext>(options => options.UseSqlServer(configuration.GetConnectionString("UsersDb")))
+               .AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+                .AddCookie(options =>
+                {
+                    options.LoginPath = new Microsoft.AspNetCore.Http.PathString("/Account/Login");
+                    options.AccessDeniedPath = new Microsoft.AspNetCore.Http.PathString("/Account/Login");
+                });
+
+            services.AddControllers(options =>
+            {
+                options.SuppressAsyncSuffixInActionNames = false;
+            });
         }
 
         /// <summary>
@@ -70,10 +80,18 @@ namespace NorthwindMvcApp
                        int.Parse(configuration["PictureService:MaxFileSize"], CultureInfo.InvariantCulture)))
                .AddScoped(provider => new MapperConfiguration(mc => mc.AddProfile(new MappingProfile())).CreateMapper())
                .AddDbContext<BloggingContext>(options => options.UseSqlServer(Environment.GetEnvironmentVariable("SQLCONNSTR_NORTHWIND_BLOGGING")))
-               .AddControllers(options =>
-               {
-                   options.SuppressAsyncSuffixInActionNames = false;
-               });
+               .AddDbContext<IdentityContext>(options => options.UseSqlServer(configuration.GetConnectionString("UsersDb")))
+               .AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+                .AddCookie(options =>
+                {
+                    options.LoginPath = new Microsoft.AspNetCore.Http.PathString("/Account/Login");
+                    options.AccessDeniedPath = new Microsoft.AspNetCore.Http.PathString("/Account/Login");
+                });
+
+            services.AddControllers(options =>
+            {
+                options.SuppressAsyncSuffixInActionNames = false;
+            });
         }
     }
 }

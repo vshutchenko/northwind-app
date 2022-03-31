@@ -1,4 +1,5 @@
-﻿<!DOCTYPE html>
+﻿@using System.Security.Claims
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -28,6 +29,10 @@
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
                         </li>
                     </ul>
+                </div>
+                <div class="navbar-collapse collapse d-sm-inline-flex flex-sm-row-reverse">
+                    <a asp-area="" asp-controller="Home" asp-action="Privacy">Logout</a>
+                    <div>@User.FindFirst(c => c.Type == ClaimTypes.Name)?.Value&nbsp|&nbsp</div>                       
                 </div>
             </div>
         </nav>

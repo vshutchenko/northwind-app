@@ -1,8 +1,13 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using NorthwindMvcApp.Models;
+using System;
+using System.Threading.Tasks;
+using System.Web.Mvc;
 
 namespace NorthwindMvcApp
 {
@@ -19,6 +24,7 @@ namespace NorthwindMvcApp
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddRazorPages().AddRazorRuntimeCompilation();
+            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
             if (this.Configuration["ServiceType"] == "InMemory")
             {
@@ -31,8 +37,12 @@ namespace NorthwindMvcApp
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IServiceProvider serviceProvider)
         {
+            var data = new SeedData(serviceProvider.GetService<IdentityContext>(), new Uri(this.Configuration["northwindApiBaseUrl"]));
+            data.SeedCustomers();
+            data.SeedEmployees();
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -48,10 +58,16 @@ namespace NorthwindMvcApp
 
             app.UseRouting();
 
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
             {
+                endpoints.MapControllerRoute(
+                    name: "default",
+                    pattern: "{controller}/{action}/page{currentPage}",
+                    defaults: new { controller = "Home", action = "Index", page = UrlParameter.Optional });
+
                 endpoints.MapControllerRoute(
                     name: "default",
                     pattern: "{controller=Home}/{action=Index}/{id?}");
