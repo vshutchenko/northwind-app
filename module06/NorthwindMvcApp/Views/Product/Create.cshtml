@@ -1,64 +1,64 @@
-﻿@using NorthwindMvcApp.ViewModels.Product
-@using NorthwindMvcApp.ViewModels.Category
+﻿@using NorthwindMvcApp.ViewModels.Category
+@using NorthwindMvcApp.ViewModels.Product
 @model ProductInputViewModel
 
 @{
-    ViewData["Title"] = "Edit";
+    ViewData["Title"] = "Create";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h1>Edit product</h1>
-
+<h1>Create product</h1>
 <hr />
+
 <div>
-    <form asp-action="Edit">
+    <form asp-action="Create">
         <div asp-validation-summary="ModelOnly" class="text-danger"></div>
         <div class="w-25">
             <div class="form-group">
                 <label asp-for="Name" class="control-label"></label>
-                <input asp-for="Name" class="form-control" value="@Model.Name" />
+                <input asp-for="Name" class="form-control" />
                 <span asp-validation-for="Name" class="text-danger"></span>
             </div>
         </div>
         <div class="w-25">
             <div class="form-group ">
                 <label asp-for="QuantityPerUnit" class="control-label"></label>
-                <input asp-for="QuantityPerUnit" class="form-control" value="@Model.QuantityPerUnit">
+                <input asp-for="QuantityPerUnit" class="form-control">
                 <span asp-validation-for="QuantityPerUnit" class="text-danger"></span>
             </div>
         </div>
         <div class="w-25">
             <div class="form-group">
                 <label asp-for="UnitPrice" class="control-label"></label>
-                <input asp-for="UnitPrice" class="form-control" value="@Model.UnitPrice">
+                <input asp-for="UnitPrice" class="form-control">
                 <span asp-validation-for="UnitPrice" class="text-danger"></span>
             </div>
         </div>
         <div class="w-25">
             <div class="form-group ">
                 <label asp-for="UnitsInStock" class="control-label"></label>
-                <input asp-for="UnitsInStock" class="form-control" value="@Model.UnitsInStock">
+                <input asp-for="UnitsInStock" class="form-control">
                 <span asp-validation-for="UnitsInStock" class="text-danger"></span>
             </div>
         </div>
         <div class="w-25">
             <div class="form-group ">
                 <label asp-for="UnitsOnOrder" class="control-label"></label>
-                <input asp-for="UnitsOnOrder" class="form-control" value="@Model.UnitsOnOrder">
+                <input asp-for="UnitsOnOrder" class="form-control">
                 <span asp-validation-for="UnitsOnOrder" class="text-danger"></span>
             </div>
         </div>
         <div class="w-25">
             <div class="form-group ">
                 <label asp-for="ReorderLevel" class="control-label"></label>
-                <input asp-for="ReorderLevel" class="form-control" value="@Model.ReorderLevel">
+                <input asp-for="ReorderLevel" class="form-control">
                 <span asp-validation-for="ReorderLevel" class="text-danger"></span>
             </div>
         </div>
         <div class="w-25">
             <div class="form-group ">
                 <label asp-for="Discontinued" class="control-label"></label>
-                <input asp-for="Discontinued" class="form-check-inline">
+                <input type="checkbox" asp-for="Discontinued" class="form-check-inline">
                 <span asp-validation-for="Discontinued" class="text-danger"></span>
             </div>
         </div>
@@ -74,14 +74,13 @@
         </div>
     </form>
 </div>
-<div>
+
+<div class="mt-3">
     <a asp-action="Index">Back to List</a>
 </div>
 
 @section Scripts {
     @{
-    await Html.RenderPartialAsync("_ValidationScriptsPartial");
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 }
-}
-
-

@@ -1,0 +1,57 @@
+﻿@using NorthwindMvcApp.ViewModels.Category
+@model CategoryInputViewModel
+
+@{
+    ViewData["Title"] = "Edit";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>Edit category</h1>
+
+<hr />
+<div class="row">
+    <div class="col-md-10">
+        <form asp-action="Edit" enctype="multipart/form-data">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="Name" class="control-label"></label>
+                <input asp-for="Name" class="form-control" />
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Description" class="control-label"></label>
+                <input asp-for="Description" class="form-control" />
+                <span asp-validation-for="Description" class="text-danger"></span>
+            </div>
+            @if (@Model.Picture != null && @Model.Picture.Length > 0)
+            {
+                <div>
+                    <label class="control-label">Current picture:</label>
+                    <img src="data:image;base64,@Convert.ToBase64String(@Model.Picture[78..])" width="100" height="100" />
+                </div>
+            }
+            else
+            {
+                <label class="control-label">Picture is not set</label>
+            }
+            <div class="form-group">
+                <label asp-for="NewPicture" class="control-label"></label>
+                <input asp-for="NewPicture" type="file" class="form-control">
+                <span asp-validation-for="NewPicture" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Save changes" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{
+    await Html.RenderPartialAsync("_ValidationScriptsPartial");
+}
+}

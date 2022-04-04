@@ -1,18 +1,23 @@
 ﻿using AutoMapper;
-using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 using Northwind.Services.Products;
 using NorthwindMvcApp.ViewModels;
+using NorthwindMvcApp.ViewModels.Category;
 using NorthwindMvcApp.ViewModels.Product;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace NorthwindMvcApp.Controllers
 {
+    [Authorize]
     public class ProductController : Controller
     {
         private readonly HttpClient httpClient;
@@ -68,65 +73,150 @@ namespace NorthwindMvcApp.Controllers
         }
 
         // GET: ProductController/Create
-        public ActionResult Create()
+        [Authorize(Roles = "admin")]
+        public async Task<ActionResult> Create()
         {
-            return View();
+            List<SelectListItem> categoryItems = new List<SelectListItem>
+            {
+                new SelectListItem { Text = "Not specified", Value = string.Empty, Selected = true }
+            };
+
+            await foreach (var c in this.GetCategoryViewModelsAsync())
+            {
+                categoryItems.Add(new SelectListItem { Text = c.Name, Value = c.Id.ToString() });
+            }
+
+            return View(new ProductInputViewModel
+            {
+                Categories = categoryItems,
+            });
         }
 
         // POST: ProductController/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create(IFormCollection collection)
+        [Authorize(Roles = "admin")]
+        public async Task<ActionResult> Create(ProductInputViewModel inputModel)
         {
-            try
+            if (ModelState.IsValid)
             {
-                return RedirectToAction(nameof(Index));
+                var product = this.mapper.Map<Product>(inputModel);
+
+                var json = JsonConvert.SerializeObject(product, new JsonSerializerSettings
+                {
+                    ContractResolver = new CamelCasePropertyNamesContractResolver()
+                });
+
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
+                var response = await this.httpClient.PostAsync("api/products", content);
             }
-            catch
-            {
-                return View();
-            }
+
+            return RedirectToAction(nameof(Index));
         }
 
         // GET: ProductController/Edit/5
-        public ActionResult Edit(int id)
+        [Authorize(Roles = "admin")]
+        public async Task<ActionResult> Edit(int id)
         {
-            return View();
+            var json = await this.httpClient.GetStringAsync($"/api/products/{id}");
+            var product = JsonConvert.DeserializeObject<Product>(json);
+
+            var viewModel = this.mapper.Map<ProductInputViewModel>(product);
+
+            List<SelectListItem> categoryItems = new List<SelectListItem>
+            {
+                new SelectListItem { Text = "Not specified", Value = string.Empty, Selected = true }
+            };
+
+            await foreach (var c in this.GetCategoryViewModelsAsync())
+            {
+                var item = new SelectListItem { Text = c.Name, Value = c.Id.ToString() };
+                if (viewModel.CategoryId == c.Id)
+                {
+                    item.Selected = true;
+                }
+
+                categoryItems.Add(item);
+            }
+
+            viewModel.Categories = categoryItems;
+            return View(viewModel);
         }
 
         // POST: ProductController/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit(int id, IFormCollection collection)
+        [Authorize(Roles = "admin")]
+        public async Task<ActionResult> Edit(int id, ProductInputViewModel inputModel)
         {
-            try
+            if (id != inputModel.Id)
             {
-                return RedirectToAction(nameof(Index));
+                return this.BadRequest();
             }
-            catch
+
+            if (ModelState.IsValid)
             {
-                return View();
-            }
+                var product = this.mapper.Map<Product>(inputModel);
+
+                var json = JsonConvert.SerializeObject(product, new JsonSerializerSettings
+                {
+                    ContractResolver = new CamelCasePropertyNamesContractResolver()
+                });
+
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
+                var response = await this.httpClient.PutAsync($"api/products/{id}", content);
+            } 
+
+            return RedirectToAction(nameof(Index));
         }
 
         // GET: ProductController/Delete/5
-        public ActionResult Delete(int id)
+        [Authorize(Roles = "admin")]
+        public async Task<ActionResult> Delete(int id)
         {
-            return View();
+            var response = await this.httpClient.GetAsync($"/api/products/{id}");
+
+            if (!response.IsSuccessStatusCode)
+            {
+                return NotFound();
+            }
+
+            var product = JsonConvert.DeserializeObject<Product>(await response.Content.ReadAsStringAsync());
+
+            var viewModel = this.mapper.Map<ProductViewModel>(product);
+
+            return View(viewModel);
         }
 
         // POST: ProductController/Delete/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Delete(int id, IFormCollection collection)
+        [Authorize(Roles = "admin")]
+        public async Task<ActionResult> DeleteConfirmed(int id)
         {
-            try
+            var response = await this.httpClient.DeleteAsync($"api/products/{id}");
+
+            if (response.IsSuccessStatusCode)
             {
-                return RedirectToAction(nameof(Index));
+                ViewBag.Message = "Product was succesfully deleted";
+                return View("OperationCompleted");
             }
-            catch
+            else
             {
-                return View();
+                ViewBag.Message = "Product was not deleted because some articles or orders reference to it";
+                return View("OperationCanceled");
+            }
+        }
+
+        private async IAsyncEnumerable<CategoryViewModel> GetCategoryViewModelsAsync()
+        {
+            var json = await this.httpClient.GetStringAsync($"api/categories?offset={0}&limit={int.MaxValue}");
+
+            var categories = JsonConvert.DeserializeObject<List<ProductCategory>>(json);
+
+            foreach (var c in categories)
+            {
+                yield return this.mapper.Map<CategoryViewModel>(c);
             }
         }
     }

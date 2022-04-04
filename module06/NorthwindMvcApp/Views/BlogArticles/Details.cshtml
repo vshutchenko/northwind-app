@@ -8,21 +8,20 @@
 
 
 <div>
-    <h1>@Model.Title</h1>
+    <h3>@Model.Title</h3>
     <hr />
     <img src="data:image;base64,@Convert.ToBase64String(@Model.AuthorPhoto[78..])" width="60" height="60" />
-    <h4>@Model.AuthorName, @Model.Posted.ToShortDateString()</h4>
+    <h3>@Model.AuthorName, @Model.Posted.ToShortDateString()</h3>
     <p>@Model.Text</p>
     <div>
         <div>
-            <h1>Leave a comment...</h1>
-            <hr />
+            <h4>Leave a comment...</h4>
             @await Html.PartialAsync("~/Views/Shared/Components/CommentForm.cshtml", new @BlogCommentViewModel() { ArticleId = @Model.Id})
 
         </div>
     </div>
 
-    <h1>Comments</h1>
+    <h4>Comments</h4>
     <hr />
     @foreach (var comment in Model?.Comments)
     {
@@ -31,7 +30,6 @@
                 <h5 class="card-title">AuthorId: @comment.AuthorId</h5>
                 <p class="card-text">@comment.Text</p>
                 <p class="card-text">@comment.Posted</p>
-                @*<a href="#" class="btn btn-primary">Go somewhere</a>*@
             </div>
         </div>
     }

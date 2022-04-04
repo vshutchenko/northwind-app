@@ -1,36 +1,46 @@
-﻿@model BlogArticleViewModel
+﻿@using NorthwindMvcApp.ViewModels.Category
+@model CategoryViewModel
 
 @{
     ViewData["Title"] = "Delete";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h2>Are you sure you want to delete this article?</h2>
+<h3>Are you sure you want to delete this category?</h3>
 <div>
     <hr />
     <div class="container mb-3">
         <div class="row">
             <div class="col-sm-1 font-weight-bold">
-                @Html.DisplayNameFor(model => model.Title)
+                @Html.DisplayNameFor(model => model.Name)
             </div>
             <div class="col-lg-2">
-                @Html.DisplayFor(model => model.Title)
+                @Html.DisplayFor(model => model.Name)
             </div>
         </div>
         <div class="row">
             <div class="col-sm-1 font-weight-bold">
-                @Html.DisplayNameFor(model => model.Text)
+                @Html.DisplayNameFor(model => model.Description)
             </div>
             <div class="col-lg-10">
-                @Html.DisplayFor(model => model.Text)
+                @Html.DisplayFor(model => model.Description)
             </div>
         </div>
         <div class="row">
             <div class="col-sm-1 font-weight-bold">
-                @Html.DisplayNameFor(model => model.Posted)
+                @Html.DisplayNameFor(model => model.Picture)
             </div>
             <div class="col-lg-5">
-                @Html.DisplayFor(model => model.Posted)
+                @if (@Model.Picture != null && @Model.Picture.Length > 0)
+                {
+                    <div>
+                        <img src="data:image;base64,@Convert.ToBase64String(@Model.Picture[78..])" width="100" height="100" />
+                    </div>
+                }
+                else
+                {
+                    <label class="control-label">Picture is not set</label>
+                }
             </div>
         </div>
     </div>

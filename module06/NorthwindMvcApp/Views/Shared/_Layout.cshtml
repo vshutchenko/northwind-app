@@ -26,14 +26,25 @@
                             <a class="nav-link text-dark" asp-area="" asp-controller="BlogArticles" asp-action="Index">Articles</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Category" asp-action="Index">Categories</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Product" asp-action="Index">Product</a>
                         </li>
                     </ul>
                 </div>
-                <div class="navbar-collapse collapse d-sm-inline-flex flex-sm-row-reverse">
-                    <a asp-area="" asp-controller="Home" asp-action="Privacy">Logout</a>
-                    <div>@User.FindFirst(c => c.Type == ClaimTypes.Name)?.Value&nbsp|&nbsp</div>                       
-                </div>
+                @if (User.Identity.IsAuthenticated)
+                {
+                    <div class="navbar-collapse collapse d-sm-inline-flex flex-sm-row-reverse">
+                        <a asp-area="" asp-controller="Account" asp-action="Logout">Logout</a>
+                        <div>@User.FindFirst(c => c.Type == ClaimTypes.Name)?.Value&nbsp|&nbsp</div>
+                    </div>
+                }
+                else
+                {
+                    <a asp-area="" asp-controller="Account" asp-action="Login">Login</a>
+                }
+
             </div>
         </nav>
     </header>

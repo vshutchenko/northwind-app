@@ -4,19 +4,23 @@ using System;
 using System.Linq;
 using System.Collections.Generic;
 using System.Net.Http;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace NorthwindMvcApp
 {
     public class ApiClient
     {
         //private WeakReference<List<Product>> productsCache;
+        //private WeakReference<List<Product>> categoriesCache;
+        //private WeakReference<List<Product>> productsCache;
+        //private WeakReference<List<Product>> productsCache;
+        //private WeakReference<List<Product>> productsCache;
+        //private WeakReference<List<Product>> relatedProductsCache;
         //private HttpClient client;
 
-        //public async IAsyncEnumerable<Product> GetAllProducts()
+        //public async Task<IEnumerable<Product>> GetProducts()
         //{
-        //    int offset = 0;
-        //    int limit = 10;
-
         //    if (!productsCache.TryGetTarget(out var products))
         //    {
         //        var json = await this.client.GetStringAsync($"api/products?offset=0&limit={int.MaxValue}");
@@ -24,25 +28,30 @@ namespace NorthwindMvcApp
         //        productsCache.SetTarget(products);
         //    }
 
-        //    return products.As;
+        //    return products;
         //}
 
-        //public IEnumerable<Product> GetAllCategories()
+        //public IEnumerable<Product> GetCategories()
         //{
 
         //}
 
-        //public IEnumerable<Product> GetAllEmployees()
+        //public IEnumerable<Product> GetEmployees()
         //{
 
         //}
 
-        //public IEnumerable<Product> GetAllProducts()
+        //public IEnumerable<Product> GetArticles()
         //{
 
         //}
 
-        //public IEnumerable<Product> GetAllProducts()
+        //public IEnumerable<Product> GetComments(int articleId)
+        //{
+
+        //}
+
+        //public IEnumerable<Product> GetRelatedProducts(int articleId)
         //{
 
         //}

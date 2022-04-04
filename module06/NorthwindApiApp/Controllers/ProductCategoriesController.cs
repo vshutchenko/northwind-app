@@ -86,7 +86,8 @@ namespace NorthwindApiApp.Controllers
             int id = await this.categoryService.CreateCategoryAsync(category);
             if (id > 0)
             {
-                return this.CreatedAtAction(nameof(PostCategoryAsync), new { Id = id }, category);
+                category.Id = id;
+                return this.CreatedAtAction(nameof(PostCategoryAsync), category);
             }
             else
             {

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
+using System.Globalization;
 using System.Threading.Tasks;
 using Northwind.DataAccess.Products;
 
@@ -45,7 +46,7 @@ namespace Northwind.DataAccess.SqlServer.Products
                     await this.connection.OpenAsync();
                 }
 
-                int id = await sqlCommand.ExecuteNonQueryAsync();
+                int id = Convert.ToInt32(await sqlCommand.ExecuteScalarAsync(), CultureInfo.InvariantCulture);
 
                 return id;
             }

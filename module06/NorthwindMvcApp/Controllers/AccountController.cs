@@ -37,16 +37,30 @@ namespace NorthwindMvcApp.Controllers
             {
                 User user = await _context.Users
                     .Include(u => u.Role)
-                    .FirstOrDefaultAsync(u => u.Name == model.Name && u.PasswordHash == model.Password);
-                if (user != null)
+                    .FirstOrDefaultAsync(u => u.Name == model.Name);
+
+                if (user is null)
+                {
+                    ModelState.AddModelError("", "Invalid user name");
+                }
+                else if (user.PasswordHash != model.Password)
+                {
+                    ModelState.AddModelError("", "Invalid password");
+                }
+                else
                 {
                     await Authenticate(user);
-
                     return RedirectToAction("Index", "Home");
-                }
-                ModelState.AddModelError("", "Некорректные логин и(или) пароль");
+                } 
             }
+
             return View(model);
+        }
+
+        public ActionResult Logout()
+        {
+            HttpContext.SignOutAsync();
+            return RedirectToAction("Index", "Home");
         }
 
         private async Task Authenticate(User user)

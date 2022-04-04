@@ -11,7 +11,6 @@ namespace NorthwindMvcApp.ViewModels
         /// <summary>
         /// Gets or sets id.
         /// </summary>
-        [Required]
         public int Id { get; set; }
 
         /// <summary>

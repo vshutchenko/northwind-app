@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Http;
 using Northwind.DataAccess.Employees;
 using Northwind.DataAccess.Products;
 using Northwind.Services.Blogging;
@@ -8,6 +9,7 @@ using Northwind.Services.EntityFrameworkCore.Entities;
 using Northwind.Services.Products;
 using NorthwindMvcApp.ViewModels.Category;
 using NorthwindMvcApp.ViewModels.Product;
+using System.IO;
 
 namespace NorthwindMvcApp
 {
@@ -21,8 +23,12 @@ namespace NorthwindMvcApp
         /// </summary>
         public MappingProfile()
         {
-            this.CreateMap<Product, ProductViewModel>();
+            this.CreateMap<Product, ProductViewModel>().ReverseMap();
+            this.CreateMap<ProductInputViewModel, Product>().ForSourceMember(x => x.Categories, opt => opt.DoNotValidate()).ReverseMap();
+
+
             this.CreateMap<ProductCategory, CategoryViewModel>();
+            this.CreateMap<CategoryInputViewModel, ProductCategory>().ForSourceMember(x => x.NewPicture, opt => opt.DoNotValidate()).ReverseMap();
 
             this.CreateMap<Employee, EmployeeTransferObject>().ReverseMap();
             this.CreateMap<Product, ProductTransferObject>().ReverseMap();

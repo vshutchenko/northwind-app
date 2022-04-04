@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Northwind.Services.Blogging;
 using Northwind.Services.Employees;
@@ -9,6 +10,7 @@ using NorthwindMvcApp.ViewModels;
 
 namespace NorthwindMvcApp.Controllers
 {
+    [Authorize]
     public class BlogArticlesController : Controller
     {
         private readonly IBloggingService blogService;
@@ -86,6 +88,7 @@ namespace NorthwindMvcApp.Controllers
         }
 
         // GET: BlogArticles/Create
+        [Authorize(Roles = "employee,admin")]
         public IActionResult Create()
         {
             return View();
@@ -94,6 +97,7 @@ namespace NorthwindMvcApp.Controllers
         // POST: BlogArticles/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "employee,admin")]
         public async Task<IActionResult> Create(BlogArticleViewModel inputModel)
         {
             if (ModelState.IsValid)
@@ -120,6 +124,7 @@ namespace NorthwindMvcApp.Controllers
         }
 
         // GET: BlogArticles/Edit/5
+        [Authorize(Roles = "employee,admin")]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -148,6 +153,7 @@ namespace NorthwindMvcApp.Controllers
         // POST: BlogArticles/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "employee,admin")]
         public async Task<IActionResult> Edit(int id, BlogArticleViewModel articleModel)
         {
             if (id != articleModel.Id)
@@ -176,6 +182,7 @@ namespace NorthwindMvcApp.Controllers
         }
 
         // GET: BlogArticles/Delete/5
+        [Authorize(Roles = "employee,admin")]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -205,15 +212,17 @@ namespace NorthwindMvcApp.Controllers
         // POST: BlogArticles/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "employee,admin")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var blogArticleEntity = await this.blogService.DeleteBlogArticleAsync(id);
+            await this.blogService.DeleteBlogArticleAsync(id);
             return RedirectToAction(nameof(Index));
         }
 
         // POST: BlogArticles/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "customer")]
         public async Task<IActionResult> CreateComment(BlogCommentViewModel inputModel)
         {
             if (ModelState.IsValid)
