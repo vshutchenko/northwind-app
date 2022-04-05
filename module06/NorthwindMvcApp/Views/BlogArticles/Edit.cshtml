@@ -1,4 +1,5 @@
-﻿@model BlogArticleViewModel
+﻿@using NorthwindMvcApp.ViewModels.Article
+@model BlogArticleInputViewModel
 
 @{
     ViewData["Title"] = "Edit";
@@ -23,6 +24,13 @@
                 <textarea asp-for="Text" class="form-control">@Model.Text</textarea>
                 <span asp-validation-for="Text" class="text-danger"></span>
             </div>
+            <div>
+                <div class="form-group ">
+                    <label asp-for="@Model.AllProducts" class="control-label"></label>
+                    <select id="ListBox1" multiple asp-for="@Model.RelatedProductsIds" asp-items="@Model.AllProducts"></select>
+                    <span asp-validation-for="@Model.AllProducts" class="text-danger"></span>
+                </div>
+            </div>
             <div class="form-group">
                 <input type="submit" value="Save" class="btn btn-primary" />
             </div>
@@ -34,6 +42,20 @@
     <a asp-action="Index">Back to List</a>
 </div>
 
+
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+<script type="text/javascript">
+    $(document).ready(function() {
+        $('#ListBox1').multiselect({
+            maxHeight: 500,
+            enableCaseInsensitiveFiltering: true,
+            filterPlaceholder: 'Enter product name...'
+        });
+    });
+</script>
+<script src="~/lib/bootstrap-multiselect/js/bootstrap-multiselect.js"></script>
+<link href="~/lib/bootstrap-multiselect/css/bootstrap-multiselect.css" rel="stylesheet" />
+    @{
+    await Html.RenderPartialAsync("_ValidationScriptsPartial");
+}
 }

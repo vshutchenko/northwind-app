@@ -37,7 +37,7 @@ namespace Northwind.Services.EntityFrameworkCore.Blogging.Entities
         /// </summary>
         [Required]
         [Column("author_id")]
-        public int AuthorId { get; set; }
+        public string AuthorId { get; set; }
 
         /// <summary>
         /// Gets or sets article id.

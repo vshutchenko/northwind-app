@@ -27,7 +27,7 @@ namespace NorthwindMvcApp.ViewModels
         /// <summary>
         /// Gets or sets author id.
         /// </summary>
-        public int AuthorId { get; set; }
+        public string AuthorId { get; set; }
 
         /// <summary>
         /// Gets or sets article id.

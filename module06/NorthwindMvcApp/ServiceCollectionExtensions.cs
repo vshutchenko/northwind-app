@@ -17,6 +17,7 @@ using Northwind.Services.Blogging;
 using System;
 using NorthwindMvcApp.Models;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Northwind.Services.Customers;
 
 namespace NorthwindMvcApp
 {
@@ -36,6 +37,7 @@ namespace NorthwindMvcApp
             services
                .AddScoped<NorthwindDataAccessFactory, SqlServerDataAccessFactory>()
                .AddScoped<IBloggingService, BloggingService>()
+               .AddScoped<ICustomerManagementService, CustomerManagementDataAccessService>()
                .AddScoped<IEmployeeManagementService, EmployeeManagementDataAccessService>()
                .AddScoped<IProductManagementService, ProductManagementDataAccessService>()
                .AddScoped<IProductCategoryManagementService, ProductCategoriesManagementDataAccessService>()
@@ -71,6 +73,7 @@ namespace NorthwindMvcApp
             services
                .AddDbContext<NorthwindContext>(opt => opt.UseInMemoryDatabase("Northwind"))
                .AddScoped<IBloggingService, BloggingService>()
+               .AddScoped<ICustomerManagementService, CustomerManagementService>()
                .AddScoped<IEmployeeManagementService, EmployeeManagementService>()
                .AddScoped<IProductManagementService, ProductManagementService>()
                .AddScoped<IProductCategoryManagementService, ProductCategoryManagementService>()
