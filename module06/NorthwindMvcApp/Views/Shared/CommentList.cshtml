@@ -1,0 +1,12 @@
+﻿@model IEnumerable<BlogCommentViewModel>
+
+@foreach (var comment in Model)
+    {
+        <div class="card" style="margin-bottom: 10px">
+            <div class="card-body">
+                <h5 class="card-title">Posted by: @comment.AuthorName</h5>
+                <p class="card-text">@comment.Text</p>
+                <p class="card-text">@comment.Posted</p>
+            </div>
+        </div>
+    }

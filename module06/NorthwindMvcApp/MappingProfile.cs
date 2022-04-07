@@ -26,7 +26,7 @@ namespace NorthwindMvcApp
         public MappingProfile()
         {
             this.CreateMap<Product, ProductViewModel>().ReverseMap();
-            this.CreateMap<ProductInputViewModel, Product>().ForSourceMember(x => x.Categories, opt => opt.DoNotValidate()).ReverseMap();
+            this.CreateMap<ProductInputViewModel, Product>().ForSourceMember(x => x.CategoryItems, opt => opt.DoNotValidate()).ReverseMap();
 
 
             this.CreateMap<ProductCategory, CategoryViewModel>();

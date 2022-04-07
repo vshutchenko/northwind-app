@@ -6,8 +6,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using NorthwindMvcApp.Models;
 using System;
-using System.Threading.Tasks;
-using System.Web.Mvc;
 
 namespace NorthwindMvcApp
 {
@@ -25,6 +23,7 @@ namespace NorthwindMvcApp
         {
             services.AddRazorPages().AddRazorRuntimeCompilation();
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+            services.AddSingleton<ApiClient>();
 
             if (this.Configuration["ServiceType"] == "InMemory")
             {
@@ -65,8 +64,18 @@ namespace NorthwindMvcApp
             {
                 endpoints.MapControllerRoute(
                     name: "default",
+                    pattern: "{controller=BlogArticles}/{action=Index}/page{currentPage}",
+                    defaults: new { controller = "BlogArticles", action = "Index" });
+
+                endpoints.MapControllerRoute(
+                    name: "default",
+                    pattern: "{controller=BlogArticles}/{action=Details}/{id?}/page{currentPage}",
+                    defaults: new { controller = "BlogArticles", action = "Details" });
+
+                endpoints.MapControllerRoute(
+                    name: "default",
                     pattern: "{controller}/{action}/page{currentPage}",
-                    defaults: new { controller = "Home", action = "Index", page = UrlParameter.Optional });
+                    defaults: new { controller = "Home", action = "Index" });
 
                 endpoints.MapControllerRoute(
                     name: "default",

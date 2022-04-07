@@ -1,4 +1,5 @@
-﻿using NorthwindMvcApp.ViewModels.Product;
+﻿using NorthwindMvcApp.ViewModels.Comment;
+using NorthwindMvcApp.ViewModels.Product;
 using System;
 using System.Collections.Generic;
 
@@ -41,7 +42,7 @@ namespace NorthwindMvcApp.ViewModels
         /// </summary>
         public byte[] AuthorPhoto { get; set; }
 
-        public IEnumerable<BlogCommentViewModel> Comments { get; set; }
+        public CommentListViewModel CommentList { get; set; }
 
         public IEnumerable<ProductViewModel> RelatedProducts { get; set; }
     }

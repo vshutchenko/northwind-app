@@ -2,17 +2,12 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
 using Northwind.Services.Products;
 using NorthwindMvcApp.ViewModels;
-using NorthwindMvcApp.ViewModels.Category;
 using NorthwindMvcApp.ViewModels.Product;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.Http;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace NorthwindMvcApp.Controllers
@@ -20,54 +15,46 @@ namespace NorthwindMvcApp.Controllers
     [Authorize]
     public class ProductController : Controller
     {
-        private readonly HttpClient httpClient;
+        private readonly ApiClient apiClient;
         private readonly IMapper mapper;
         private readonly int pageSize = 10;
 
-        public ProductController(IMapper mapper)
+        public ProductController(ApiClient apiClient, IMapper mapper)
         {
-            this.mapper = mapper;
-            this.httpClient = new HttpClient()
-            {
-                BaseAddress = new Uri("http://localhost:5000")
-            };
+            this.apiClient = apiClient ?? throw new ArgumentNullException(nameof(apiClient));
+            this.mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
         }
 
         // GET: ProductController
         public async Task<IActionResult> Index(int currentPage = 1)
         {
-            var json = await this.httpClient.GetStringAsync($"api/products?offset={0}&limit={int.MaxValue}");
+            List<ProductViewModel> productModels = new List<ProductViewModel>();
 
-            var products = JsonConvert.DeserializeObject<List<Product>>(json);
-
-            List<ProductViewModel> viewModels = new List<ProductViewModel>();
-
-            foreach (var p in products)
+            await foreach (var p in this.apiClient.GetProductsAsync())
             {
-                var viewModel = this.mapper.Map<ProductViewModel>(p);
+                var productModel = this.mapper.Map<ProductViewModel>(p);
 
                 if (p.CategoryId != null)
                 {
-                    var categoryJson = await this.httpClient.GetStringAsync($"api/categories/{p.CategoryId}");
-                    var category = JsonConvert.DeserializeObject<ProductCategory>(categoryJson);                 
-                    viewModel.CategoryName = category.Name;
+                    var category = await this.apiClient.GetCategoryAsync((int)p.CategoryId);    
+                    productModel.CategoryName = category.Name;
                 }
                 else
                 {
-                    viewModel.CategoryName = "Not specified";
+                    productModel.CategoryName = "Not specified";
                 }
 
-                viewModels.Add(viewModel);
+                productModels.Add(productModel);
             }
 
             return View(new ProductsListViewModel
             {
-                Products = viewModels.Skip((currentPage - 1) * pageSize).Take(pageSize),
+                Products = productModels.Skip((currentPage - 1) * pageSize).Take(pageSize),
                 PagingInfo = new PagingInfo
                 {
                     CurrentPage = currentPage,
                     ItemsPerPage = pageSize,
-                    TotalItems = viewModels.Count(),
+                    TotalItems = productModels.Count(),
                 }
             });
         }
@@ -81,14 +68,14 @@ namespace NorthwindMvcApp.Controllers
                 new SelectListItem { Text = "Not specified", Value = string.Empty, Selected = true }
             };
 
-            await foreach (var c in this.GetCategoryViewModelsAsync())
+            await foreach (var c in this.apiClient.GetCategoriesAsync())
             {
                 categoryItems.Add(new SelectListItem { Text = c.Name, Value = c.Id.ToString() });
             }
 
             return View(new ProductInputViewModel
             {
-                Categories = categoryItems,
+                CategoryItems = categoryItems,
             });
         }
 
@@ -102,13 +89,13 @@ namespace NorthwindMvcApp.Controllers
             {
                 var product = this.mapper.Map<Product>(inputModel);
 
-                var json = JsonConvert.SerializeObject(product, new JsonSerializerSettings
-                {
-                    ContractResolver = new CamelCasePropertyNamesContractResolver()
-                });
+                bool isCreated = await this.apiClient.CreateProductAsync(product);
 
-                var content = new StringContent(json, Encoding.UTF8, "application/json");
-                var response = await this.httpClient.PostAsync("api/products", content);
+                if (!isCreated)
+                {
+                    ViewBag.Message = "Cannot create product";
+                    return View("OperationCanceled");
+                }
             }
 
             return RedirectToAction(nameof(Index));
@@ -118,8 +105,7 @@ namespace NorthwindMvcApp.Controllers
         [Authorize(Roles = "admin")]
         public async Task<ActionResult> Edit(int id)
         {
-            var json = await this.httpClient.GetStringAsync($"/api/products/{id}");
-            var product = JsonConvert.DeserializeObject<Product>(json);
+            var product = await this.apiClient.GetProductAsync(id);
 
             var viewModel = this.mapper.Map<ProductInputViewModel>(product);
 
@@ -128,9 +114,10 @@ namespace NorthwindMvcApp.Controllers
                 new SelectListItem { Text = "Not specified", Value = string.Empty, Selected = true }
             };
 
-            await foreach (var c in this.GetCategoryViewModelsAsync())
+            await foreach (var c in this.apiClient.GetCategoriesAsync())
             {
                 var item = new SelectListItem { Text = c.Name, Value = c.Id.ToString() };
+
                 if (viewModel.CategoryId == c.Id)
                 {
                     item.Selected = true;
@@ -139,7 +126,7 @@ namespace NorthwindMvcApp.Controllers
                 categoryItems.Add(item);
             }
 
-            viewModel.Categories = categoryItems;
+            viewModel.CategoryItems = categoryItems;
             return View(viewModel);
         }
 
@@ -157,14 +144,14 @@ namespace NorthwindMvcApp.Controllers
             if (ModelState.IsValid)
             {
                 var product = this.mapper.Map<Product>(inputModel);
+                
+                bool isUpdated = await this.apiClient.UpdateProductAsync(id, product);
 
-                var json = JsonConvert.SerializeObject(product, new JsonSerializerSettings
+                if (!isUpdated)
                 {
-                    ContractResolver = new CamelCasePropertyNamesContractResolver()
-                });
-
-                var content = new StringContent(json, Encoding.UTF8, "application/json");
-                var response = await this.httpClient.PutAsync($"api/products/{id}", content);
+                    ViewBag.Message = "Cannot update product";
+                    return View("OperationCanceled");
+                }
             } 
 
             return RedirectToAction(nameof(Index));
@@ -174,14 +161,12 @@ namespace NorthwindMvcApp.Controllers
         [Authorize(Roles = "admin")]
         public async Task<ActionResult> Delete(int id)
         {
-            var response = await this.httpClient.GetAsync($"/api/products/{id}");
+            var product = await this.apiClient.GetProductAsync(id);
 
-            if (!response.IsSuccessStatusCode)
+            if (product is null)
             {
                 return NotFound();
             }
-
-            var product = JsonConvert.DeserializeObject<Product>(await response.Content.ReadAsStringAsync());
 
             var viewModel = this.mapper.Map<ProductViewModel>(product);
 
@@ -194,30 +179,15 @@ namespace NorthwindMvcApp.Controllers
         [Authorize(Roles = "admin")]
         public async Task<ActionResult> DeleteConfirmed(int id)
         {
-            var response = await this.httpClient.DeleteAsync($"api/products/{id}");
+            bool isDeleted = await this.apiClient.DeleteProductAsync(id);
 
-            if (response.IsSuccessStatusCode)
-            {
-                ViewBag.Message = "Product was succesfully deleted";
-                return View("OperationCompleted");
-            }
-            else
+            if (!isDeleted)
             {
                 ViewBag.Message = "Product was not deleted because some articles or orders reference to it";
                 return View("OperationCanceled");
             }
-        }
 
-        private async IAsyncEnumerable<CategoryViewModel> GetCategoryViewModelsAsync()
-        {
-            var json = await this.httpClient.GetStringAsync($"api/categories?offset={0}&limit={int.MaxValue}");
-
-            var categories = JsonConvert.DeserializeObject<List<ProductCategory>>(json);
-
-            foreach (var c in categories)
-            {
-                yield return this.mapper.Map<CategoryViewModel>(c);
-            }
+            return RedirectToAction(nameof(Index));
         }
     }
 }

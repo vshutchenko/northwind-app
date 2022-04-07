@@ -66,6 +66,6 @@ namespace NorthwindMvcApp.ViewModels.Product
         /// <summary>
         /// Gets or sets categories list.
         /// </summary>
-        public IEnumerable<SelectListItem> Categories { get; set; }
+        public IEnumerable<SelectListItem> CategoryItems { get; set; }
     }
 }

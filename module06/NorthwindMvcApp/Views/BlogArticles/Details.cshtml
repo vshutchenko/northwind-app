@@ -14,11 +14,12 @@
     @if (@Model.RelatedProducts != null && @Model.RelatedProducts.Count() > 0)
     {
         <div>
-            <h3>Related products</h3>
+            <h5>
             @foreach (var product in @Model.RelatedProducts)
             {
-                <p>@product.Name</p>
+                <span class="badge badge-primary bg-maroon">@product.Name</span>
             }
+            </h5>
         </div>
     }
     <div>
@@ -31,16 +32,13 @@
 
     <h4>Comments</h4>
     <hr />
-    @foreach (var comment in Model?.Comments)
-    {
-        <div class="card" style="margin-bottom: 10px">
-            <div class="card-body">
-                <h5 class="card-title">AuthorId: @comment.AuthorId</h5>
-                <p class="card-text">@comment.Text</p>
-                <p class="card-text">@comment.Posted</p>
-            </div>
-        </div>
-    }
+
+    <partial name="CommentList" model="@Model.CommentList.Comments" />
+
+    <div page-model="@Model.CommentList.PagingInfo" page-action="Details" page-classes-enabled="true"
+         page-class="btn" page-class-normal="btn-outline-dark"
+         page-class-selected="btn-primary" class="btn-group pull-right m-1">
+    </div>
 </div>
 @section Scripts {
     @{

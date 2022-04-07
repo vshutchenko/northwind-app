@@ -3,6 +3,10 @@
   "defaultProvider": "cdnjs",
   "libraries": [
     {
+      "library": "bootstrap@4.5.3",
+      "destination": "wwwroot/lib/bootstrap/"
+    },
+    {
       "library": "bootstrap-multiselect@1.1.1",
       "destination": "wwwroot/lib/bootstrap-multiselect/"
     }

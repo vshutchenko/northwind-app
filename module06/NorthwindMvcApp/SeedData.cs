@@ -33,7 +33,7 @@ namespace NorthwindMvcApp
 
             foreach (var e in employees)
             {
-                if (this.identityContext.Users.Where(u => u.Name == $"{e.FirstName} {e.LastName}").FirstOrDefault() is null)
+                if (this.identityContext.Users.AsQueryable().Where(u => u.Name == $"{e.FirstName} {e.LastName}").FirstOrDefault() is null)
                 {
                     this.identityContext.Users.Add(new User
                     {
@@ -56,7 +56,7 @@ namespace NorthwindMvcApp
 
             foreach (var c in customers)
             {
-                if (this.identityContext.Users.Where(u => u.Name == c.CompanyName).FirstOrDefault() is null)
+                if (this.identityContext.Users.AsQueryable().Where(u => u.Name == c.CompanyName).FirstOrDefault() is null)
                 {
                     this.identityContext.Users.Add(new User
                     {

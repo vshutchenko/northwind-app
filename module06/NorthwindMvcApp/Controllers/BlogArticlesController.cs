@@ -7,13 +7,16 @@ using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using Northwind.Services.Blogging;
 using Northwind.Services.Customers;
 using Northwind.Services.Employees;
 using Northwind.Services.Products;
+using NorthwindMvcApp.Models;
 using NorthwindMvcApp.ViewModels;
 using NorthwindMvcApp.ViewModels.Article;
+using NorthwindMvcApp.ViewModels.Comment;
 using NorthwindMvcApp.ViewModels.Product;
 
 namespace NorthwindMvcApp.Controllers
@@ -26,11 +29,13 @@ namespace NorthwindMvcApp.Controllers
         private readonly ICustomerManagementService customerService;
         private readonly IMapper mapper;
         private readonly HttpClient httpClient;
+        private readonly IdentityContext context;
+        private readonly int pageSize = 10;
 
-
-        public BlogArticlesController(IBloggingService blogService, IEmployeeManagementService employeeService, ICustomerManagementService customerService, IMapper mapper)
+        public BlogArticlesController(IBloggingService blogService, IEmployeeManagementService employeeService, ICustomerManagementService customerService, IMapper mapper, IdentityContext context)
         {
             this.blogService = blogService ?? throw new ArgumentNullException(nameof(blogService));
+            this.context = context ?? throw new ArgumentNullException(nameof(context));
             this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
             this.customerService = customerService ?? throw new ArgumentNullException(nameof(customerService));
             this.mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
@@ -41,9 +46,9 @@ namespace NorthwindMvcApp.Controllers
         }
 
         // GET: BlogArticles
-        public async Task<IActionResult> Index(int offset = 0, int limit = 100)
+        public async Task<IActionResult> Index(int currentPage = 1)
         {
-            var articles = this.blogService.GetBlogArticlesAsync(offset, limit);
+            var articles = this.blogService.GetBlogArticlesAsync(0, int.MaxValue);
             List<BlogArticleViewModel> viewModels = new List<BlogArticleViewModel>();
 
             await foreach (var a in articles)
@@ -58,11 +63,22 @@ namespace NorthwindMvcApp.Controllers
                 });
             }
 
-            return View(viewModels);
+            var listModel = new BlogArticleListViewModel
+            {
+                Articles = viewModels.Skip((currentPage - 1) * pageSize).Take(pageSize),
+                PagingInfo = new PagingInfo
+                {
+                    CurrentPage = currentPage,
+                    ItemsPerPage = pageSize,
+                    TotalItems = viewModels.Count(),
+                }
+            };
+
+            return View(listModel);
         }
 
         // GET: BlogArticles/Details/5
-        public async Task<IActionResult> Details(int? id)
+        public async Task<IActionResult> Details(int? id, int currentPage = 1)
         {
             if (id == null)
             {
@@ -80,14 +96,19 @@ namespace NorthwindMvcApp.Controllers
 
             await foreach (var comment in this.blogService.GetBlogArticleCommentsAsync(article.Id, 0, 100))
             {
-                comments.Add(new BlogCommentViewModel
+                var user = await this.context.Users.AsQueryable().Where(u => u.NorthwindDbId == comment.AuthorId).FirstOrDefaultAsync();
+                if (user != null)
                 {
-                    ArticleId = comment.ArticleId,
-                    AuthorId = comment.AuthorId,
-                    Id = comment.Id,
-                    Posted = comment.Posted,
-                    Text = comment.Text,
-                });
+                    comments.Add(new BlogCommentViewModel
+                    {
+                        ArticleId = comment.ArticleId,
+                        AuthorId = comment.AuthorId,
+                        Id = comment.Id,
+                        Posted = comment.Posted,
+                        Text = comment.Text,
+                        AuthorName = user.Name,
+                    });
+                } 
             }
 
             List<ProductViewModel> relatedProducts = new List<ProductViewModel>();
@@ -108,7 +129,16 @@ namespace NorthwindMvcApp.Controllers
                 Title = article.Title,
                 AuthorName = author is null ? "Unknown author" : $"{author.FirstName} {author.LastName}",
                 AuthorPhoto = author is null ? Array.Empty<byte>() : author.Photo,
-                Comments = comments,
+                CommentList = new CommentListViewModel
+                {
+                    Comments = comments.Skip((currentPage - 1) * 10).Take(10),
+                    PagingInfo = new PagingInfo
+                    {
+                        CurrentPage = currentPage,
+                        ItemsPerPage = 10,
+                        TotalItems = comments.Count,
+                    }
+                },
                 RelatedProducts = relatedProducts,
             };
 
