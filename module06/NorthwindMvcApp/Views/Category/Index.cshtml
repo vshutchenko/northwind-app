@@ -1,4 +1,5 @@
 ﻿@using NorthwindMvcApp.ViewModels.Category
+@using System.Security.Claims
 @model CategoryListViewModel
 
 @{
@@ -8,14 +9,17 @@
 
 <h1>Categories</h1>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
+@if (this.User?.FindFirst(c => c.Type == ClaimTypes.Role)?.Value == "admin")
+{
+    <p>
+        <a asp-action="Create">Create New</a>
+    </p>
+}
 
-<partial name="CategoriesTable" model="@Model.Categories"/>
+<partial name="CategoriesTable" model="@Model.Categories" />
 
 <div page-model="@Model.PagingInfo" page-action="Index" page-classes-enabled="true"
-        page-class="btn" page-class-normal="btn-outline-dark"
-        page-class-selected="btn-primary" class="btn-group pull-right m-1">
+     page-class="btn" page-class-normal="btn-outline-dark"
+     page-class-selected="btn-primary" class="btn-group pull-right m-1">
 </div>
 

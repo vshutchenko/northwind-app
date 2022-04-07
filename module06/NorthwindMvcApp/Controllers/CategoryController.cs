@@ -15,43 +15,36 @@ using System.Threading.Tasks;
 
 namespace NorthwindMvcApp.Controllers
 {
+    [Authorize]
     public class CategoryController : Controller
     {
-        private readonly HttpClient httpClient;
+        private readonly ApiClient apiClient;
         private readonly IMapper mapper;
         private readonly int pageSize = 10;
 
-        public CategoryController(IMapper mapper)
+        public CategoryController(ApiClient apiClient, IMapper mapper)
         {
-            this.mapper = mapper;
-            this.httpClient = new HttpClient()
-            {
-                BaseAddress = new Uri("http://localhost:5000")
-            };
+            this.apiClient = apiClient ?? throw new ArgumentNullException(nameof(apiClient));
+            this.mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
         }
-
-        [Authorize(Roles = "admin,customer,employee")]
+        
         public async Task<IActionResult> Index(int currentPage = 1)
         {
-            var json = await this.httpClient.GetStringAsync($"api/categories?offset={0}&limit={int.MaxValue}");
+            List<CategoryViewModel> categoryModels = new List<CategoryViewModel>();
 
-            var categories = JsonConvert.DeserializeObject<List<ProductCategory>>(json);
-
-            List<CategoryViewModel> viewModels = new List<CategoryViewModel>();
-
-            foreach (var c in categories)
+            await foreach (var c in this.apiClient.GetCategoriesAsync())
             {
-                viewModels.Add(this.mapper.Map<CategoryViewModel>(c));
+                categoryModels.Add(this.mapper.Map<CategoryViewModel>(c));
             }
 
             return View(new CategoryListViewModel
             {
-                Categories = viewModels.Skip((currentPage - 1) * pageSize).Take(pageSize),
+                Categories = categoryModels.Skip((currentPage - 1) * pageSize).Take(pageSize),
                 PagingInfo = new PagingInfo
                 {
                     CurrentPage = currentPage,
                     ItemsPerPage = pageSize,
-                    TotalItems = viewModels.Count(),
+                    TotalItems = categoryModels.Count(),
                 }
             });
         }
@@ -68,30 +61,26 @@ namespace NorthwindMvcApp.Controllers
         public async Task<IActionResult> Create(CategoryInputViewModel inputModel)
         {
             if (ModelState.IsValid)
-            {              
+            {
                 var category = this.mapper.Map<ProductCategory>(inputModel);
+                
+                var response = await this.apiClient.CreateCategoryAsync(category);
 
-                var json = JsonConvert.SerializeObject(category, new JsonSerializerSettings
+                if (!response.isCreated)
                 {
-                    ContractResolver = new CamelCasePropertyNamesContractResolver()
-                });
+                    ViewBag.Message = "Cannot create category";
+                    return View("OperationCanceled");
+                }
 
-                var content = new StringContent(json, Encoding.UTF8, "application/json");
-                var response = await this.httpClient.PostAsync("api/categories", content);
-
-                if (response.IsSuccessStatusCode)
+                if (inputModel.NewPicture != null)
                 {
-                    var createdCategory = JsonConvert.DeserializeObject<ProductCategory>(await response.Content.ReadAsStringAsync());
-
-                    if (inputModel.NewPicture != null)
+                    bool isPictureUpdated = await this.apiClient.UpdateCategoryPictureAsync(response.id, await inputModel.NewPicture.GetBytesAsync());
+                    if (!isPictureUpdated)
                     {
-                        MultipartFormDataContent form = new MultipartFormDataContent();
-                        var pictureBytes = await inputModel.NewPicture.GetBytesAsync();
-                        form.Add(new ByteArrayContent(pictureBytes, 0, pictureBytes.Length), "categoryPicture", inputModel.Name);
-
-                        response = await this.httpClient.PutAsync($"api/categories/{createdCategory.Id}/picture", form);
+                        ViewBag.Message = "Cannot update picture";
+                        return View("OperationCanceled");
                     }
-                }   
+                }
             }
             
             return RedirectToAction(nameof(Index));
@@ -100,8 +89,7 @@ namespace NorthwindMvcApp.Controllers
         [Authorize(Roles = "admin")]
         public async Task<IActionResult> Edit(int id)
         {
-            var json = await this.httpClient.GetStringAsync($"/api/categories/{id}");
-            var category = JsonConvert.DeserializeObject<ProductCategory>(json);
+            var category = await this.apiClient.GetCategoryAsync(id);
 
             var viewModel = this.mapper.Map<CategoryInputViewModel>(category);
             return View(viewModel);
@@ -121,26 +109,21 @@ namespace NorthwindMvcApp.Controllers
             {
                 var category = this.mapper.Map<ProductCategory>(inputModel);
 
-                var json = JsonConvert.SerializeObject(category, new JsonSerializerSettings
+                var isUpdated = await this.apiClient.UpdateCategoryAsync(id, category);
+
+                if (!isUpdated)
                 {
-                    ContractResolver = new CamelCasePropertyNamesContractResolver()
-                });
+                    ViewBag.Message = "Cannot update category";
+                    return View("OperationCanceled");
+                }
 
-                var content = new StringContent(json, Encoding.UTF8, "application/json");
-                var response = await this.httpClient.PutAsync($"api/categories/{id}", content);
-
-                if (response.IsSuccessStatusCode)
+                if(inputModel.NewPicture != null)
                 {
-                    var editedCategoryJson = await this.httpClient.GetStringAsync($"api/categories/{id}");
-                    var editedCategory = JsonConvert.DeserializeObject<ProductCategory>(editedCategoryJson);
-
-                    if (inputModel.NewPicture != null)
+                    bool isPictureUpdated = await this.apiClient.UpdateCategoryPictureAsync(id, await inputModel.NewPicture.GetBytesAsync());
+                    if (!isPictureUpdated)
                     {
-                        MultipartFormDataContent form = new MultipartFormDataContent();
-                        var pictureBytes = await inputModel.NewPicture.GetBytesAsync();
-                        form.Add(new ByteArrayContent(pictureBytes, 0, pictureBytes.Length), "categoryPicture", inputModel.Name);
-
-                        response = await this.httpClient.PutAsync($"api/categories/{editedCategory.Id}/picture", form);
+                        ViewBag.Message = "Cannot update picture";
+                        return View("OperationCanceled");
                     }
                 }
             }
@@ -151,14 +134,12 @@ namespace NorthwindMvcApp.Controllers
         [Authorize(Roles = "admin")]
         public async Task<IActionResult> Delete(int id)
         {
-            var response = await this.httpClient.GetAsync($"/api/categories/{id}");
+            var category = await this.apiClient.GetCategoryAsync(id);
 
-            if (!response.IsSuccessStatusCode)
+            if (category is null)
             {
                 return NotFound();
             }
-
-            var category = JsonConvert.DeserializeObject<ProductCategory>(await response.Content.ReadAsStringAsync());
 
             var viewModel = this.mapper.Map<CategoryViewModel>(category);
 
@@ -169,18 +150,15 @@ namespace NorthwindMvcApp.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var response = await this.httpClient.DeleteAsync($"api/categories/{id}");
+            bool isDeleted = await this.apiClient.DeleteCategoryAsync(id);
 
-            if (response.IsSuccessStatusCode)
-            {
-                ViewBag.Message = "Category was succesfully deleted";
-                return View("OperationCompleted");
-            }
-            else
+            if (!isDeleted)
             {
                 ViewBag.Message = "Category was not deleted because some products reference to it";
                 return View("OperationCanceled");
             }
+
+            return RedirectToAction(nameof(Index));
         }
     }
 }

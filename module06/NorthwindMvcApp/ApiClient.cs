@@ -113,5 +113,72 @@ namespace NorthwindMvcApp
 
             AsyncEnumerable.Empty<ProductCategory>();
         }
+
+        public async Task<bool> DeleteCategoryAsync(int id)
+        {
+            var response = await this.httpClient.DeleteAsync($"api/categories/{id}");
+
+            return response.IsSuccessStatusCode;
+        }
+
+        public async Task<bool> UpdateCategoryAsync(int id, ProductCategory category)
+        {
+            var json = await category.SerializeAsync();
+
+            var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+            var response = await this.httpClient.PutAsync($"api/categories/{id}", content);
+
+            return response.IsSuccessStatusCode;
+        }
+
+        public async Task<(bool isCreated, int id)> CreateCategoryAsync(ProductCategory category)
+        {
+            var json = await category.SerializeAsync();
+
+            var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+            var response = await this.httpClient.PostAsync($"api/categories", content);
+            if (response.IsSuccessStatusCode)
+            {
+                var categoryStream = await response.Content.ReadAsStreamAsync();
+                var id = (await categoryStream.DeserializeAsync<ProductCategory>()).Id;
+
+                return (response.IsSuccessStatusCode, id);
+            }
+
+            return (false, -1);
+        }
+
+        public async Task<byte[]> GetCategoryPictureAsync(int id)
+        {
+            var response = await this.httpClient.GetAsync($"api/categories/{id}/picture");
+
+            if (response.IsSuccessStatusCode)
+            {
+                var picture = await response.Content.ReadAsByteArrayAsync();
+
+                return picture;
+            }
+
+            return Array.Empty<byte>();
+        }
+
+        public async Task<bool> DeleteCategoryPictureAsync(int id)
+        {
+            var response = await this.httpClient.DeleteAsync($"api/categories/{id}/picture");
+
+            return response.IsSuccessStatusCode;
+        }
+
+        public async Task<bool> UpdateCategoryPictureAsync(int id, byte[] picture)
+        {
+            MultipartFormDataContent form = new MultipartFormDataContent();
+            form.Add(new ByteArrayContent(picture, 0, picture.Length), "categoryPicture", $"category{id}");
+
+            var response = await this.httpClient.PutAsync($"api/categories/{id}/picture", form);
+
+            return response.IsSuccessStatusCode;
+        }
     }
 }
