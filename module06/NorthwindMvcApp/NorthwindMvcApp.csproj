@@ -5,11 +5,19 @@
 		<CodeAnalysisRuleSet>Properties\code-analysis.ruleset</CodeAnalysisRuleSet>
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>
 	</PropertyGroup>
+
+	<ItemGroup>
+	  <Compile Remove="ViewModels\Employee\**" />
+	  <Content Remove="ViewModels\Employee\**" />
+	  <EmbeddedResource Remove="ViewModels\Employee\**" />
+	  <None Remove="ViewModels\Employee\**" />
+	</ItemGroup>
 	<ItemGroup>
 		<AdditionalFiles Include="..\stylecop.json" Link="Properties\stylecop.json" />
 		<AdditionalFiles Include="..\code-analysis.ruleset" Link="Properties\code-analysis.ruleset" />
 	</ItemGroup>
 	<ItemGroup>
+		<PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
 		<PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="3.1.21" />
 		<PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="3.1.21" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.21" />
@@ -34,9 +42,6 @@
 	  <ProjectReference Include="..\Northwind.Services.EntityFrameworkCore.Blogging\Northwind.Services.EntityFrameworkCore.Blogging.csproj" />
 	  <ProjectReference Include="..\Northwind.Services.EntityFrameworkCore\Northwind.Services.EntityFrameworkCore.csproj" />
 	  <ProjectReference Include="..\Northwind.Services\Northwind.Services.csproj" />
-	</ItemGroup>
-	<ItemGroup>
-	  <Folder Include="ViewModels\Employee\" />
 	</ItemGroup>
 
 </Project>

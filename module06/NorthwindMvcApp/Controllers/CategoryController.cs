@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
@@ -63,6 +64,10 @@ namespace NorthwindMvcApp.Controllers
             if (ModelState.IsValid)
             {
                 var category = this.mapper.Map<ProductCategory>(inputModel);
+                if (inputModel.NewPicture != null)
+                {
+                    category.Picture = await inputModel.NewPicture.GetBytesAsync();
+                }
                 
                 var response = await this.apiClient.CreateCategoryAsync(category);
 
@@ -70,16 +75,6 @@ namespace NorthwindMvcApp.Controllers
                 {
                     ViewBag.Message = "Cannot create category";
                     return View("OperationCanceled");
-                }
-
-                if (inputModel.NewPicture != null)
-                {
-                    bool isPictureUpdated = await this.apiClient.UpdateCategoryPictureAsync(response.id, await inputModel.NewPicture.GetBytesAsync());
-                    if (!isPictureUpdated)
-                    {
-                        ViewBag.Message = "Cannot update picture";
-                        return View("OperationCanceled");
-                    }
                 }
             }
             
@@ -92,6 +87,7 @@ namespace NorthwindMvcApp.Controllers
             var category = await this.apiClient.GetCategoryAsync(id);
 
             var viewModel = this.mapper.Map<CategoryInputViewModel>(category);
+
             return View(viewModel);
         }
 
@@ -108,23 +104,17 @@ namespace NorthwindMvcApp.Controllers
             if (ModelState.IsValid)
             {
                 var category = this.mapper.Map<ProductCategory>(inputModel);
-
+                if (inputModel.NewPicture != null)
+                {
+                    category.Picture = await inputModel.NewPicture.GetBytesAsync();
+                }
+                
                 var isUpdated = await this.apiClient.UpdateCategoryAsync(id, category);
 
                 if (!isUpdated)
                 {
                     ViewBag.Message = "Cannot update category";
                     return View("OperationCanceled");
-                }
-
-                if(inputModel.NewPicture != null)
-                {
-                    bool isPictureUpdated = await this.apiClient.UpdateCategoryPictureAsync(id, await inputModel.NewPicture.GetBytesAsync());
-                    if (!isPictureUpdated)
-                    {
-                        ViewBag.Message = "Cannot update picture";
-                        return View("OperationCanceled");
-                    }
                 }
             }
 

@@ -5,6 +5,8 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using System.Text;
 using System.Linq;
+using Northwind.Services.Employees;
+using Northwind.Services.Customers;
 
 namespace NorthwindMvcApp
 {
@@ -89,6 +91,8 @@ namespace NorthwindMvcApp
 
                 var category = await stream.DeserializeAsync<ProductCategory>();
 
+                category.Picture = await this.GetCategoryPictureAsync(id);
+
                 return category;
             }
 
@@ -107,6 +111,7 @@ namespace NorthwindMvcApp
 
                 await foreach (var c in categories)
                 {
+                    c.Picture = await this.GetCategoryPictureAsync(c.Id);
                     yield return c;
                 }
             }
@@ -129,7 +134,13 @@ namespace NorthwindMvcApp
 
             var response = await this.httpClient.PutAsync($"api/categories/{id}", content);
 
-            return response.IsSuccessStatusCode;
+            if (response.IsSuccessStatusCode)
+            {
+                var isUpdated = await this.UpdateCategoryPictureAsync(id, category.Picture);
+                return isUpdated;
+            }
+
+            return false;
         }
 
         public async Task<(bool isCreated, int id)> CreateCategoryAsync(ProductCategory category)
@@ -144,13 +155,15 @@ namespace NorthwindMvcApp
                 var categoryStream = await response.Content.ReadAsStreamAsync();
                 var id = (await categoryStream.DeserializeAsync<ProductCategory>()).Id;
 
-                return (response.IsSuccessStatusCode, id);
+                var isCreated = await this.UpdateCategoryPictureAsync(id, category.Picture);
+
+                return (isCreated, id);
             }
 
             return (false, -1);
         }
 
-        public async Task<byte[]> GetCategoryPictureAsync(int id)
+        private async Task<byte[]> GetCategoryPictureAsync(int id)
         {
             var response = await this.httpClient.GetAsync($"api/categories/{id}/picture");
 
@@ -164,14 +177,7 @@ namespace NorthwindMvcApp
             return Array.Empty<byte>();
         }
 
-        public async Task<bool> DeleteCategoryPictureAsync(int id)
-        {
-            var response = await this.httpClient.DeleteAsync($"api/categories/{id}/picture");
-
-            return response.IsSuccessStatusCode;
-        }
-
-        public async Task<bool> UpdateCategoryPictureAsync(int id, byte[] picture)
+        private async Task<bool> UpdateCategoryPictureAsync(int id, byte[] picture)
         {
             MultipartFormDataContent form = new MultipartFormDataContent();
             form.Add(new ByteArrayContent(picture, 0, picture.Length), "categoryPicture", $"category{id}");
@@ -179,6 +185,38 @@ namespace NorthwindMvcApp
             var response = await this.httpClient.PutAsync($"api/categories/{id}/picture", form);
 
             return response.IsSuccessStatusCode;
+        }
+
+        public async Task<Employee> GetEmployeeAsync(int id)
+        {
+            var response = await this.httpClient.GetAsync($"api/employees/{id}");
+
+            if (response.IsSuccessStatusCode)
+            {
+                var stream = await response.Content.ReadAsStreamAsync();
+
+                var employee = await stream.DeserializeAsync<Employee>();
+
+                return employee;
+            }
+
+            return null;
+        }
+
+        public async Task<Customer> GetCustomerAsync(string id)
+        {
+            var response = await this.httpClient.GetAsync($"api/customers/{id}");
+
+            if (response.IsSuccessStatusCode)
+            {
+                var stream = await response.Content.ReadAsStreamAsync();
+
+                var customer = await stream.DeserializeAsync<Customer>();
+
+                return customer;
+            }
+
+            return null;
         }
     }
 }

@@ -43,7 +43,7 @@ namespace NorthwindMvcApp.Controllers
                 {
                     ModelState.AddModelError("", "Invalid user name");
                 }
-                else if (user.PasswordHash != model.Password)
+                else if (!BCrypt.Net.BCrypt.Verify(model.Password, user.PasswordHash))
                 {
                     ModelState.AddModelError("", "Invalid password");
                 }

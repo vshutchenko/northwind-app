@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
 namespace NorthwindMvcApp.ViewModels.Category
@@ -27,11 +28,13 @@ namespace NorthwindMvcApp.ViewModels.Category
         /// <summary>
         /// Gets or sets new category picture.
         /// </summary>
+        [DisplayName("New picture")]
         public IFormFile NewPicture { get; set; }
 
         /// <summary>
         /// Gets or sets a category picture.
         /// </summary>
+        [DisplayName("Current picture")]
         public byte[] Picture { get; set; }
     }
 }

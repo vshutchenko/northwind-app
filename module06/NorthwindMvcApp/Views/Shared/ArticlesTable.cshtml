@@ -14,10 +14,7 @@
             <th>
                 @Html.DisplayNameFor(model => model.Posted)
             </th>
-            <th>
-                @Html.DisplayNameFor(model => model.AuthorId)
-            </th>
-            <th></th>
+            <th>Actions</th>
         </tr>
     </thead>
     <tbody>
@@ -35,11 +32,22 @@
                 <td style="min-width: 100px">
                     @Html.DisplayFor(modelItem => date)
                 </td>
-                <td>
+                
+                @if (this.User?.FindFirst(c => c.Type == ClaimTypes.Role)?.Value == "admin"
+                || this.User?.FindFirst(c => c.Type == "NorthwindId")?.Value == item.AuthorId.ToString())
+                {
+                    <td>
                     <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
                     <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
                     <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-                </td>
+                    </td>
+                }
+                else
+                {
+                    <td>
+                    <a asp-action="Details" asp-route-id="@item.Id">Details</a>
+                    </td>
+                }
             </tr>
         }
     </tbody>

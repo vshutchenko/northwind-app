@@ -22,7 +22,6 @@ namespace NorthwindMvcApp
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddRazorPages().AddRazorRuntimeCompilation();
-            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             services.AddSingleton<ApiClient>();
 
             if (this.Configuration["ServiceType"] == "InMemory")
@@ -41,6 +40,7 @@ namespace NorthwindMvcApp
             var data = new SeedData(serviceProvider.GetService<IdentityContext>(), new Uri(this.Configuration["northwindApiBaseUrl"]));
             data.SeedCustomers();
             data.SeedEmployees();
+            data.SeedAdmin();
 
             if (env.IsDevelopment())
             {
@@ -69,8 +69,8 @@ namespace NorthwindMvcApp
 
                 endpoints.MapControllerRoute(
                     name: "default",
-                    pattern: "{controller=BlogArticles}/{action=Details}/{id?}/page{currentPage}",
-                    defaults: new { controller = "BlogArticles", action = "Details" });
+                    pattern: "{controller}/{action=Details}/{id}/page{currentPage}",
+                    defaults: new { controller = "BlogArticles", action = "Details"});
 
                 endpoints.MapControllerRoute(
                     name: "default",

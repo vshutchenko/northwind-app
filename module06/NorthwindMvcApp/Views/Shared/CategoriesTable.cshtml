@@ -25,7 +25,14 @@
         {
             <tr>
                 <td>
-                    <img src="data:image;base64,@Convert.ToBase64String(item.Picture is null || item.Picture.Length == 0  ? Array.Empty<byte>() : item.Picture[78..])" width="60" height="60" />
+                    @if(item.Picture != null && item.Picture.Length > 0)
+                    {
+                        <img src="data:image;base64,@Convert.ToBase64String(item.Picture)" width="60" height="60" />
+                    }
+                    else
+                    {
+                        <p>No image</p>
+                    }
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.Name)

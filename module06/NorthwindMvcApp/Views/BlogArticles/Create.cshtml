@@ -3,32 +3,33 @@
 @{
     ViewData["Title"] = "Create";
     Layout = "~/Views/Shared/_Layout.cshtml";
-    BlogCommentViewModel comment = new BlogCommentViewModel();
 }
 
 <h1>Create article</h1>
 <hr />
 
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Create" >
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="w-25">
+<div>
+    <form asp-action="Create">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <div class="w-25">
+            <div class="form-group">
                 <label asp-for="Title" class="control-label"></label>
                 <input asp-for="Title" class="form-control" />
                 <span asp-validation-for="Title" class="text-danger"></span>
             </div>
-            <div class="w-50">
+        </div>
+        <div class="w-50">
+            <div class="form-group">
                 <label asp-for="Text" class="control-label"></label>
                 <textarea rows="6" asp-for="Text" class="form-control"></textarea>
                 <span asp-validation-for="Text" class="text-danger"></span>
             </div>
-            <input type="hidden" asp-for="AuthorId" value="@User.FindFirst(c => c.Type == "NorthwindId").Value"/>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
-            </div>
-        </form>
-    </div>
+        </div>
+        <input type="hidden" asp-for="AuthorId" value="@User.FindFirst(c => c.Type == "NorthwindId").Value" />
+        <div>
+            <input type="submit" value="Create" class="btn btn-primary" />
+        </div>
+    </form>
 </div>
 
 <div class="mt-3">

@@ -9,6 +9,8 @@ using Northwind.Services.Employees;
 using Northwind.Services.EntityFrameworkCore.Blogging.Entities;
 using Northwind.Services.EntityFrameworkCore.Entities;
 using Northwind.Services.Products;
+using NorthwindMvcApp.ViewModels;
+using NorthwindMvcApp.ViewModels.Article;
 using NorthwindMvcApp.ViewModels.Category;
 using NorthwindMvcApp.ViewModels.Product;
 using System.IO;
@@ -25,8 +27,15 @@ namespace NorthwindMvcApp
         /// </summary>
         public MappingProfile()
         {
+            this.CreateMap<BlogArticle, BlogArticleInputViewModel>().ForMember(x => x.AllProducts, opt => opt.Ignore()).ReverseMap();
+
+
             this.CreateMap<Product, ProductViewModel>().ReverseMap();
             this.CreateMap<ProductInputViewModel, Product>().ForSourceMember(x => x.CategoryItems, opt => opt.DoNotValidate()).ReverseMap();
+
+            this.CreateMap<BlogArticle, BlogArticleViewModel>().ReverseMap();
+            this.CreateMap<BlogComment, BlogCommentViewModel>().ReverseMap();
+            this.CreateMap<BlogArticleProduct, ProductViewModel>().ReverseMap();
 
 
             this.CreateMap<ProductCategory, CategoryViewModel>();

@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using Northwind.Services.Customers;
 using Northwind.Services.Employees;
 using NorthwindMvcApp.Models;
@@ -7,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
+
 
 namespace NorthwindMvcApp
 {
@@ -38,7 +38,7 @@ namespace NorthwindMvcApp
                     this.identityContext.Users.Add(new User
                     {
                         Name = $"{e.FirstName} {e.LastName}",
-                        PasswordHash = "12345",
+                        PasswordHash = BCrypt.Net.BCrypt.HashPassword("12345"),
                         RoleId = 2,
                         NorthwindDbId = e.Id.ToString(),
                     });
@@ -50,7 +50,7 @@ namespace NorthwindMvcApp
 
         public void SeedCustomers()
         {
-            var json =  this.client.GetStringAsync("api/customers").Result;
+            var json = this.client.GetStringAsync("api/customers").Result;
 
             var customers = JsonConvert.DeserializeObject<List<Customer>>(json);
 
@@ -61,11 +61,27 @@ namespace NorthwindMvcApp
                     this.identityContext.Users.Add(new User
                     {
                         Name = c.CompanyName,
-                        PasswordHash = "12345",
+                        PasswordHash = BCrypt.Net.BCrypt.HashPassword("12345"),
                         RoleId = 3,
                         NorthwindDbId = c.Id,
                     });
-                }  
+                }
+            }
+
+            this.identityContext.SaveChanges();
+        }
+
+        public void SeedAdmin()
+        {
+            if (this.identityContext.Users.AsQueryable().Where(u => u.Name == "admin1").FirstOrDefault() is null)
+            {
+                this.identityContext.Users.Add(new User
+                {
+                    Name = "admin1",
+                    PasswordHash = BCrypt.Net.BCrypt.HashPassword("12345"),
+                    RoleId = 1,
+                    NorthwindDbId = string.Empty,
+                });
             }
 
             this.identityContext.SaveChanges();

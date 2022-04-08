@@ -23,17 +23,15 @@
                 <input asp-for="Description" class="form-control" />
                 <span asp-validation-for="Description" class="text-danger"></span>
             </div>
-            @if (@Model.Picture != null && @Model.Picture.Length > 0)
-            {
-                <div>
-                    <label class="control-label">Current picture:</label>
-                    <img src="data:image;base64,@Convert.ToBase64String(@Model.Picture[78..])" width="100" height="100" />
-                </div>
-            }
-            else
-            {
-                <label class="control-label">Picture is not set</label>
-            }
+            <div class="form-group">
+                <input asp-for="Picture" type="hidden" class="form-control-file" src="@Model.Picture">
+                @if (@Model.Picture != null && @Model.Picture.Length > 0)
+                {
+                <label asp-for="Picture" class="control-label">Current picture:</label>
+
+                    <img src="data:image;base64,@Convert.ToBase64String(Model.Picture)" width="60" height="60" />
+                }
+            </div>
             <div class="form-group">
                 <label asp-for="NewPicture" class="control-label"></label>
                 <input asp-for="NewPicture" type="file" class="form-control-file">

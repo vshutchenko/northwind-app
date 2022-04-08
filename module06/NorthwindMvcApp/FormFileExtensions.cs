@@ -12,5 +12,11 @@ namespace NorthwindMvcApp
             await formFile.CopyToAsync(memoryStream);
             return memoryStream.ToArray();
         }
+
+        public async static Task<IFormFile> BytesToFormFileAsync(this byte[] bytes)
+        {
+            await using var ms = new MemoryStream(bytes);
+            return new FormFile(ms, 0, ms.Length, "formFile", "streamFile");
+        }
     }
 }

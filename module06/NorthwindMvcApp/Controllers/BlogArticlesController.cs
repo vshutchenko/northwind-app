@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.Http;
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
@@ -10,8 +9,6 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using Northwind.Services.Blogging;
-using Northwind.Services.Customers;
-using Northwind.Services.Employees;
 using Northwind.Services.Products;
 using NorthwindMvcApp.Models;
 using NorthwindMvcApp.ViewModels;
@@ -25,24 +22,17 @@ namespace NorthwindMvcApp.Controllers
     public class BlogArticlesController : Controller
     {
         private readonly IBloggingService blogService;
-        private readonly IEmployeeManagementService employeeService;
-        private readonly ICustomerManagementService customerService;
         private readonly IMapper mapper;
-        private readonly HttpClient httpClient;
+        private readonly ApiClient apiClient;
         private readonly IdentityContext context;
         private readonly int pageSize = 10;
 
-        public BlogArticlesController(IBloggingService blogService, IEmployeeManagementService employeeService, ICustomerManagementService customerService, IMapper mapper, IdentityContext context)
+        public BlogArticlesController(IBloggingService blogService, ApiClient apiClient, IdentityContext context, IMapper mapper)
         {
             this.blogService = blogService ?? throw new ArgumentNullException(nameof(blogService));
+            this.apiClient = apiClient ?? throw new ArgumentNullException(nameof(apiClient));
             this.context = context ?? throw new ArgumentNullException(nameof(context));
-            this.employeeService = employeeService ?? throw new ArgumentNullException(nameof(employeeService));
-            this.customerService = customerService ?? throw new ArgumentNullException(nameof(customerService));
             this.mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
-            this.httpClient = new HttpClient()
-            {
-                BaseAddress = new Uri("http://localhost:5000")
-            };
         }
 
         // GET: BlogArticles
@@ -53,14 +43,7 @@ namespace NorthwindMvcApp.Controllers
 
             await foreach (var a in articles)
             {
-                viewModels.Add(new BlogArticleViewModel
-                {
-                    AuthorId = a.AuthorId,
-                    Id = a.Id,
-                    Posted = a.Posted,
-                    Text = a.Text,
-                    Title = a.Title,
-                });
+                viewModels.Add(this.mapper.Map<BlogArticleViewModel>(a));
             }
 
             var listModel = new BlogArticleListViewModel
@@ -78,46 +61,34 @@ namespace NorthwindMvcApp.Controllers
         }
 
         // GET: BlogArticles/Details/5
-        public async Task<IActionResult> Details(int? id, int currentPage = 1)
+        public async Task<IActionResult> Details(int id, int currentPage = 1)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var article = await this.blogService.GetBlogArticleAsync((int)id);
+            var article = await this.blogService.GetBlogArticleAsync(id);
             if (article == null)
             {
                 return NotFound();
             }
 
-            var author = await this.employeeService.GetEmployeeAsync(article.AuthorId);
+            var author = await this.apiClient.GetEmployeeAsync(article.AuthorId);
             List<BlogCommentViewModel> comments = new List<BlogCommentViewModel>();
 
-            await foreach (var comment in this.blogService.GetBlogArticleCommentsAsync(article.Id, 0, 100))
+            await foreach (var comment in this.blogService.GetBlogArticleCommentsAsync(article.Id, 0, int.MaxValue))
             {
                 var user = await this.context.Users.AsQueryable().Where(u => u.NorthwindDbId == comment.AuthorId).FirstOrDefaultAsync();
                 if (user != null)
                 {
-                    comments.Add(new BlogCommentViewModel
-                    {
-                        ArticleId = comment.ArticleId,
-                        AuthorId = comment.AuthorId,
-                        Id = comment.Id,
-                        Posted = comment.Posted,
-                        Text = comment.Text,
-                        AuthorName = user.Name,
-                    });
+                    var commentViewModel = this.mapper.Map<BlogCommentViewModel>(comment);
+                    commentViewModel.AuthorName = user.Name;
+                    comments.Add(commentViewModel);
                 } 
             }
 
-            List<ProductViewModel> relatedProducts = new List<ProductViewModel>();
+            List<ProductViewModel> products = new List<ProductViewModel>();
 
-            var json = await this.httpClient.GetStringAsync($"api/articles/{article.Id}/products");
-            var products = JsonConvert.DeserializeObject<List<Product>>(json);
-            foreach (var p in products)
+            await foreach (var relatedProduct in this.blogService.GetRelatedProductsAsync(article.Id))
             {
-                relatedProducts.Add(this.mapper.Map<ProductViewModel>(p));
+                var product = await this.apiClient.GetProductAsync(relatedProduct.ProductId);
+                products.Add(this.mapper.Map<ProductViewModel>(product));
             }
 
             var viewModel = new BlogArticleDetailsViewModel
@@ -139,7 +110,7 @@ namespace NorthwindMvcApp.Controllers
                         TotalItems = comments.Count,
                     }
                 },
-                RelatedProducts = relatedProducts,
+                RelatedProducts = products,
             };
 
             return View(viewModel);
@@ -160,19 +131,8 @@ namespace NorthwindMvcApp.Controllers
         {
             if (ModelState.IsValid)
             {
-                if (await this.employeeService.GetEmployeeAsync(inputModel.AuthorId) is null)
-                {
-                    return this.NotFound();
-                }
-
-                var article = new BlogArticle
-                {
-                    AuthorId = inputModel.AuthorId,
-                    Text = inputModel.Text,
-                    Title = inputModel.Title,
-                    Posted = DateTime.Now,
-                };
-
+                var article = this.mapper.Map<BlogArticle>(inputModel);
+                article.Posted = DateTime.Now;
                 await this.blogService.CreateBlogArticleAsync(article);
 
                 return RedirectToAction(nameof(Index));
@@ -183,34 +143,24 @@ namespace NorthwindMvcApp.Controllers
 
         // GET: BlogArticles/Edit/5
         [Authorize(Roles = "employee,admin")]
-        public async Task<IActionResult> Edit(int? id)
+        public async Task<IActionResult> Edit(int id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var article = await this.blogService.GetBlogArticleAsync((int)id);
+            var article = await this.blogService.GetBlogArticleAsync(id);
             if (article == null)
             {
                 return NotFound();
             }
 
-            List<ProductViewModel> relatedProducts = new List<ProductViewModel>();
+            List<BlogArticleProduct> relatedProducts = new List<BlogArticleProduct>();
 
-            var jsonProducts = await this.httpClient.GetStringAsync($"api/products?offset={0}&limit={int.MaxValue}");
-            var allProducts = JsonConvert.DeserializeObject<List<Product>>(jsonProducts);
-
-            var json = await this.httpClient.GetStringAsync($"api/articles/{article.Id}/products");
-            var products = JsonConvert.DeserializeObject<List<Product>>(json);
-            foreach (var p in products)
+            await foreach(var p in this.blogService.GetRelatedProductsAsync(id))
             {
-                relatedProducts.Add(this.mapper.Map<ProductViewModel>(p));
+                relatedProducts.Add(p);
             }
 
-            List<SelectListItem> relProducts = new List<SelectListItem>();
+            List<SelectListItem> selectItems = new List<SelectListItem>();
 
-            foreach (var p in allProducts)
+            await foreach (var p in this.apiClient.GetProductsAsync())
             {
                 SelectListItem item = new SelectListItem { Text = p.Name, Value = p.Id.ToString() };
 
@@ -219,19 +169,13 @@ namespace NorthwindMvcApp.Controllers
                     item.Selected = true;
                 }
 
-                relProducts.Add(item);
+                selectItems.Add(item);
             }
 
 
-            var viewModel = new BlogArticleInputViewModel
-            {
-                AuthorId = article.AuthorId,
-                Id = article.Id,
-                Posted = article.Posted,
-                Text = article.Text,
-                Title = article.Title,
-                AllProducts = relProducts,
-            };
+            var viewModel = this.mapper.Map<BlogArticleInputViewModel>(article);
+
+            viewModel.AllProducts = selectItems;
 
             return View(viewModel);
         }
@@ -240,38 +184,27 @@ namespace NorthwindMvcApp.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "employee,admin")]
-        public async Task<IActionResult> Edit(int id, BlogArticleInputViewModel articleModel)
+        public async Task<IActionResult> Edit(int id, BlogArticleInputViewModel inputModel)
         {
-            if (id != articleModel.Id)
-            {
-                return this.BadRequest();
-            }
-
             if (ModelState.IsValid)
             {
-                var article = new BlogArticle
-                {
-                    Id = id,
-                    AuthorId = articleModel.AuthorId,
-                    Posted = DateTime.Now,
-                    Text = articleModel.Text,
-                    Title = articleModel.Title,
-                };
+                var article = this.mapper.Map<BlogArticle>(inputModel);
+                article.Posted = DateTime.Now;
 
                 await this.blogService.UpdateBlogArticleAsync(id, article);
 
-                List<int> toDelete = new List<int>();
+                List<int> idsToDelete = new List<int>();
                 await foreach (var relProd in this.blogService.GetRelatedProductsAsync(article.Id))
                 {
-                    toDelete.Add(relProd.ProductId);
+                    idsToDelete.Add(relProd.ProductId);
                 }
 
-                foreach (var idtodel in toDelete)
+                foreach (var idToDelete in idsToDelete)
                 {
-                    await this.blogService.DeleteRelatedProductAsync(article.Id, idtodel);
+                    await this.blogService.DeleteRelatedProductAsync(article.Id, idToDelete);
                 }
 
-                foreach (var prodId in articleModel.RelatedProductsIds)
+                foreach (var prodId in inputModel.RelatedProductsIds)
                 {
                     await this.blogService.CreateRelatedProductAsync(new BlogArticleProduct(article.Id, prodId));
                 }
@@ -279,33 +212,21 @@ namespace NorthwindMvcApp.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            return View(articleModel);
+            return View(inputModel);
         }
 
         // GET: BlogArticles/Delete/5
         [Authorize(Roles = "employee,admin")]
-        public async Task<IActionResult> Delete(int? id)
+        public async Task<IActionResult> Delete(int id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var article = await this.blogService.GetBlogArticleAsync((int)id);
+            var article = await this.blogService.GetBlogArticleAsync(id);
 
             if (article == null)
             {
                 return NotFound();
             }
 
-            var viewModel = new BlogArticleViewModel
-            {
-                AuthorId = article.AuthorId,
-                Id = article.Id,
-                Posted = article.Posted,
-                Text = article.Text,
-                Title = article.Title,
-            };
+            var viewModel = this.mapper.Map<BlogArticleViewModel>(article);
 
             return View(viewModel);
         }
@@ -316,6 +237,29 @@ namespace NorthwindMvcApp.Controllers
         [Authorize(Roles = "employee,admin")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
+            List<int> relatedProductIdsToDelete = new List<int>();
+            await foreach (var relatedProduct in this.blogService.GetRelatedProductsAsync(id))
+            {
+                relatedProductIdsToDelete.Add(relatedProduct.ProductId);
+            }
+
+            foreach (var relatedProductId in relatedProductIdsToDelete)
+            {
+                await this.blogService.DeleteRelatedProductAsync(id, relatedProductId);
+            }
+
+            List<int> commentIdsToDelete = new List<int>();
+
+            await foreach (var idToDelete in this.blogService.GetBlogArticleCommentsAsync(id, 0, int.MaxValue).Select(c => c.Id))
+            {
+                commentIdsToDelete.Add(idToDelete);
+            }
+
+            foreach (var idToDelete in commentIdsToDelete)
+            {
+                await this.blogService.DeleteBlogArticleCommentAsync(id, idToDelete);
+            }
+
             await this.blogService.DeleteBlogArticleAsync(id);
             return RedirectToAction(nameof(Index));
         }
@@ -328,19 +272,14 @@ namespace NorthwindMvcApp.Controllers
         {
             if (ModelState.IsValid)
             {
-                if (await this.customerService.GetCustomerAsync(inputModel.AuthorId) is null)
+                if (await this.apiClient.GetCustomerAsync(inputModel.AuthorId) is null)
                 {
                     return this.NotFound();
                 }
 
-                var comment = new BlogComment
-                {
-                    AuthorId = inputModel.AuthorId,
-                    Text = inputModel.Text,
-                    Posted = DateTime.Now,
-                    ArticleId = inputModel.ArticleId,
-                    Id = inputModel.Id
-                };
+                var comment = this.mapper.Map<BlogComment>(inputModel);
+
+                comment.Posted = DateTime.Now;
 
                 await this.blogService.CreateBlogArticleCommentAsync(comment);
             }

@@ -8,7 +8,7 @@
 <div>
     <h3>@Model.Title</h3>
     <hr />
-    <img src="data:image;base64,@Convert.ToBase64String(@Model.AuthorPhoto[78..])" width="60" height="60" />
+    <img src="data:image;base64,@Convert.ToBase64String(@Model.AuthorPhoto is null || @Model.AuthorPhoto.Length == 0  ? Array.Empty<byte>() : @Model.AuthorPhoto[78..])" width="60" height="60" />
     <h3>@Model.AuthorName, @Model.Posted.ToShortDateString()</h3>
     <p>@Model.Text</p>
     @if (@Model.RelatedProducts != null && @Model.RelatedProducts.Count() > 0)
@@ -36,7 +36,7 @@
     <partial name="CommentList" model="@Model.CommentList.Comments" />
 
     <div page-model="@Model.CommentList.PagingInfo" page-action="Details" page-classes-enabled="true"
-         page-class="btn" page-class-normal="btn-outline-dark"
+         page-class="btn" page-class-normal="btn-outline-dark" page-url-id="@Model.Id"
          page-class-selected="btn-primary" class="btn-group pull-right m-1">
     </div>
 </div>
