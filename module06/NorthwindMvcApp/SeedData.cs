@@ -27,7 +27,7 @@ namespace NorthwindMvcApp
 
         public void SeedEmployees()
         {
-            var json = this.client.GetStringAsync("api/employees").Result;
+            var json = this.client.GetStringAsync($"api/employees?offset={0}&limit={int.MaxValue}").Result;
 
             var employees = JsonConvert.DeserializeObject<List<Employee>>(json);
 
@@ -50,7 +50,7 @@ namespace NorthwindMvcApp
 
         public void SeedCustomers()
         {
-            var json = this.client.GetStringAsync("api/customers").Result;
+            var json = this.client.GetStringAsync($"api/customers?offset={0}&limit={int.MaxValue}").Result;
 
             var customers = JsonConvert.DeserializeObject<List<Customer>>(json);
 

@@ -163,30 +163,6 @@ namespace NorthwindMvcApp
             return (false, -1);
         }
 
-        private async Task<byte[]> GetCategoryPictureAsync(int id)
-        {
-            var response = await this.httpClient.GetAsync($"api/categories/{id}/picture");
-
-            if (response.IsSuccessStatusCode)
-            {
-                var picture = await response.Content.ReadAsByteArrayAsync();
-
-                return picture;
-            }
-
-            return Array.Empty<byte>();
-        }
-
-        private async Task<bool> UpdateCategoryPictureAsync(int id, byte[] picture)
-        {
-            MultipartFormDataContent form = new MultipartFormDataContent();
-            form.Add(new ByteArrayContent(picture, 0, picture.Length), "categoryPicture", $"category{id}");
-
-            var response = await this.httpClient.PutAsync($"api/categories/{id}/picture", form);
-
-            return response.IsSuccessStatusCode;
-        }
-
         public async Task<Employee> GetEmployeeAsync(int id)
         {
             var response = await this.httpClient.GetAsync($"api/employees/{id}");
@@ -217,6 +193,30 @@ namespace NorthwindMvcApp
             }
 
             return null;
+        }
+
+        private async Task<byte[]> GetCategoryPictureAsync(int id)
+        {
+            var response = await this.httpClient.GetAsync($"api/categories/{id}/picture");
+
+            if (response.IsSuccessStatusCode)
+            {
+                var picture = await response.Content.ReadAsByteArrayAsync();
+
+                return picture;
+            }
+
+            return Array.Empty<byte>();
+        }
+
+        private async Task<bool> UpdateCategoryPictureAsync(int id, byte[] picture)
+        {
+            MultipartFormDataContent form = new MultipartFormDataContent();
+            form.Add(new ByteArrayContent(picture, 0, picture.Length), "categoryPicture", $"category{id}");
+
+            var response = await this.httpClient.PutAsync($"api/categories/{id}/picture", form);
+
+            return response.IsSuccessStatusCode;
         }
     }
 }

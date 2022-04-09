@@ -1,20 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using AutoMapper;
+﻿using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using Newtonsoft.Json;
 using Northwind.Services.Blogging;
-using Northwind.Services.Products;
 using NorthwindMvcApp.Models;
 using NorthwindMvcApp.ViewModels;
 using NorthwindMvcApp.ViewModels.Article;
 using NorthwindMvcApp.ViewModels.Comment;
 using NorthwindMvcApp.ViewModels.Product;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace NorthwindMvcApp.Controllers
 {
@@ -38,13 +36,10 @@ namespace NorthwindMvcApp.Controllers
         // GET: BlogArticles
         public async Task<IActionResult> Index(int currentPage = 1)
         {
-            var articles = this.blogService.GetBlogArticlesAsync(0, int.MaxValue);
-            List<BlogArticleViewModel> viewModels = new List<BlogArticleViewModel>();
-
-            await foreach (var a in articles)
-            {
-                viewModels.Add(this.mapper.Map<BlogArticleViewModel>(a));
-            }
+            List<BlogArticleViewModel> viewModels = await this.blogService
+                .GetBlogArticlesAsync(0, int.MaxValue)
+                .Select(a => this.mapper.Map<BlogArticleViewModel>(a))
+                .ToListAsync();
 
             var listModel = new BlogArticleListViewModel
             {
@@ -70,26 +65,21 @@ namespace NorthwindMvcApp.Controllers
             }
 
             var author = await this.apiClient.GetEmployeeAsync(article.AuthorId);
-            List<BlogCommentViewModel> comments = new List<BlogCommentViewModel>();
 
-            await foreach (var comment in this.blogService.GetBlogArticleCommentsAsync(article.Id, 0, int.MaxValue))
-            {
-                var user = await this.context.Users.AsQueryable().Where(u => u.NorthwindDbId == comment.AuthorId).FirstOrDefaultAsync();
-                if (user != null)
+            List<BlogCommentViewModel> comments = await this.blogService.GetBlogArticleCommentsAsync(article.Id, 0, int.MaxValue)
+                .Join(this.context.Users.AsAsyncEnumerable(), c => c.AuthorId, u => u.NorthwindDbId, (c, u) =>
                 {
-                    var commentViewModel = this.mapper.Map<BlogCommentViewModel>(comment);
-                    commentViewModel.AuthorName = user.Name;
-                    comments.Add(commentViewModel);
-                } 
-            }
+                    var commentViewModel = this.mapper.Map<BlogCommentViewModel>(c);
+                    commentViewModel.AuthorName = u.Name;
+                    return commentViewModel;
+                })
+                .ToListAsync();
 
-            List<ProductViewModel> products = new List<ProductViewModel>();
-
-            await foreach (var relatedProduct in this.blogService.GetRelatedProductsAsync(article.Id))
-            {
-                var product = await this.apiClient.GetProductAsync(relatedProduct.ProductId);
-                products.Add(this.mapper.Map<ProductViewModel>(product));
-            }
+            List<ProductViewModel> products = await this.blogService
+                .GetRelatedProductsAsync(article.Id)
+                .SelectAwait(async p => await this.apiClient.GetProductAsync(p.ProductId))
+                .Select(product => this.mapper.Map<ProductViewModel>(product))
+                .ToListAsync();
 
             var viewModel = new BlogArticleDetailsViewModel
             {
@@ -98,8 +88,8 @@ namespace NorthwindMvcApp.Controllers
                 Posted = article.Posted,
                 Text = article.Text,
                 Title = article.Title,
-                AuthorName = author is null ? "Unknown author" : $"{author.FirstName} {author.LastName}",
-                AuthorPhoto = author is null ? Array.Empty<byte>() : author.Photo,
+                AuthorName = $"{author.FirstName} {author.LastName}",
+                AuthorPhoto = author.Photo,
                 CommentList = new CommentListViewModel
                 {
                     Comments = comments.Skip((currentPage - 1) * 10).Take(10),
@@ -133,7 +123,13 @@ namespace NorthwindMvcApp.Controllers
             {
                 var article = this.mapper.Map<BlogArticle>(inputModel);
                 article.Posted = DateTime.Now;
-                await this.blogService.CreateBlogArticleAsync(article);
+                int id = await this.blogService.CreateBlogArticleAsync(article);
+                
+                if (id < 1)
+                {
+                    ViewBag.Message = "Cannot create article";
+                    return View("OperationCanceled");
+                }
 
                 return RedirectToAction(nameof(Index));
             }
@@ -151,31 +147,18 @@ namespace NorthwindMvcApp.Controllers
                 return NotFound();
             }
 
-            List<BlogArticleProduct> relatedProducts = new List<BlogArticleProduct>();
-
-            await foreach(var p in this.blogService.GetRelatedProductsAsync(id))
-            {
-                relatedProducts.Add(p);
-            }
-
-            List<SelectListItem> selectItems = new List<SelectListItem>();
-
-            await foreach (var p in this.apiClient.GetProductsAsync())
-            {
-                SelectListItem item = new SelectListItem { Text = p.Name, Value = p.Id.ToString() };
-
-                if (relatedProducts.Any(rp => rp.Id == p.Id))
-                {
-                    item.Selected = true;
-                }
-
-                selectItems.Add(item);
-            }
-
+            List<BlogArticleProduct> relatedProducts = await this.blogService.GetRelatedProductsAsync(id).ToListAsync();
 
             var viewModel = this.mapper.Map<BlogArticleInputViewModel>(article);
 
-            viewModel.AllProducts = selectItems;
+            viewModel.AllProducts = await this.apiClient.GetProductsAsync()
+                .Select(p => new SelectListItem
+                {
+                    Text = p.Name,
+                    Value = p.Id.ToString(),
+                    Selected = relatedProducts.Any(rp => rp.ProductId == p.Id)
+                })
+                .ToListAsync();
 
             return View(viewModel);
         }
@@ -191,23 +174,31 @@ namespace NorthwindMvcApp.Controllers
                 var article = this.mapper.Map<BlogArticle>(inputModel);
                 article.Posted = DateTime.Now;
 
-                await this.blogService.UpdateBlogArticleAsync(id, article);
+                bool isUpdated = await this.blogService.UpdateBlogArticleAsync(id, article);
 
-                List<int> idsToDelete = new List<int>();
-                await foreach (var relProd in this.blogService.GetRelatedProductsAsync(article.Id))
+                if (!isUpdated)
                 {
-                    idsToDelete.Add(relProd.ProductId);
+                    ViewBag.Message = "Cannot update product";
+                    return View("OperationCanceled");
                 }
+
+                List<int> idsToDelete= await this.blogService
+                   .GetRelatedProductsAsync(article.Id)
+                   .Select(p => p.ProductId)
+                   .ToListAsync();
 
                 foreach (var idToDelete in idsToDelete)
                 {
                     await this.blogService.DeleteRelatedProductAsync(article.Id, idToDelete);
                 }
 
-                foreach (var prodId in inputModel.RelatedProductsIds)
+                if (inputModel.RelatedProductsIds != null)
                 {
-                    await this.blogService.CreateRelatedProductAsync(new BlogArticleProduct(article.Id, prodId));
-                }
+                    foreach (var prodId in inputModel.RelatedProductsIds)
+                    {
+                        await this.blogService.CreateRelatedProductAsync(new BlogArticleProduct(article.Id, prodId));
+                    }
+                }               
 
                 return RedirectToAction(nameof(Index));
             }
@@ -237,30 +228,33 @@ namespace NorthwindMvcApp.Controllers
         [Authorize(Roles = "employee,admin")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            List<int> relatedProductIdsToDelete = new List<int>();
-            await foreach (var relatedProduct in this.blogService.GetRelatedProductsAsync(id))
-            {
-                relatedProductIdsToDelete.Add(relatedProduct.ProductId);
-            }
+            List<int> relatedProductIdsToDelete = await this.blogService
+                .GetRelatedProductsAsync(id)
+                .Select(p => p.ProductId)
+                .ToListAsync();
 
             foreach (var relatedProductId in relatedProductIdsToDelete)
             {
                 await this.blogService.DeleteRelatedProductAsync(id, relatedProductId);
             }
 
-            List<int> commentIdsToDelete = new List<int>();
-
-            await foreach (var idToDelete in this.blogService.GetBlogArticleCommentsAsync(id, 0, int.MaxValue).Select(c => c.Id))
-            {
-                commentIdsToDelete.Add(idToDelete);
-            }
+            List<int> commentIdsToDelete = await this.blogService
+                .GetBlogArticleCommentsAsync(id, 0, int.MaxValue)
+                .Select(c => c.Id)
+                .ToListAsync();
 
             foreach (var idToDelete in commentIdsToDelete)
             {
                 await this.blogService.DeleteBlogArticleCommentAsync(id, idToDelete);
             }
 
-            await this.blogService.DeleteBlogArticleAsync(id);
+            bool isDeleted = await this.blogService.DeleteBlogArticleAsync(id);
+            if (!isDeleted)
+            {
+                ViewBag.Message = "Cannot delete";
+                return View("OperationCanceled");
+            }
+
             return RedirectToAction(nameof(Index));
         }
 
