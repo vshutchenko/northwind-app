@@ -12,7 +12,7 @@
     <a asp-action="Create">Create New</a>
 </p>
 
-<partial name="ArticlesTable" model="@Model.Articles"/>
+<partial name="Components/ArticlesTable" model="@Model.Articles"/>
 
 <div page-model="@Model.PagingInfo" page-action="Index" page-classes-enabled="true"
         page-class="btn" page-class-normal="btn-outline-dark"

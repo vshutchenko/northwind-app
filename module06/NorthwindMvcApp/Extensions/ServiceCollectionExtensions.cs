@@ -35,6 +35,7 @@ namespace NorthwindMvcApp
         {
             services.AddControllersWithViews();
             services
+               .AddSingleton<ApiClient>()
                .AddScoped<NorthwindDataAccessFactory, SqlServerDataAccessFactory>()
                .AddScoped<IBloggingService, BloggingService>()
                .AddScoped<ICustomerManagementService, CustomerManagementDataAccessService>()
@@ -71,6 +72,7 @@ namespace NorthwindMvcApp
         {
             services.AddControllersWithViews();
             services
+               .AddSingleton<ApiClient>()
                .AddDbContext<NorthwindContext>(opt => opt.UseInMemoryDatabase("Northwind"))
                .AddScoped<IBloggingService, BloggingService>()
                .AddScoped<ICustomerManagementService, CustomerManagementService>()
