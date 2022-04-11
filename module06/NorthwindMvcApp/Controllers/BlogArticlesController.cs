@@ -107,7 +107,7 @@ namespace NorthwindMvcApp.Controllers
         }
 
         // GET: BlogArticles/Create
-        [Authorize(Roles = "employee,admin")]
+        [Authorize(Roles = "employee")]
         public IActionResult Create()
         {
             return View();
@@ -116,7 +116,7 @@ namespace NorthwindMvcApp.Controllers
         // POST: BlogArticles/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Authorize(Roles = "employee,admin")]
+        [Authorize(Roles = "employee")]
         public async Task<IActionResult> Create(BlogArticleViewModel inputModel)
         {
             if (ModelState.IsValid)
