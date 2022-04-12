@@ -124,7 +124,7 @@ namespace NorthwindMvcApp.Controllers
                 var article = this.mapper.Map<BlogArticle>(inputModel);
                 article.Posted = DateTime.Now;
                 int id = await this.blogService.CreateBlogArticleAsync(article);
-                
+
                 if (id < 1)
                 {
                     ViewBag.Message = "Cannot create article";
@@ -182,7 +182,7 @@ namespace NorthwindMvcApp.Controllers
                     return View("OperationCanceled");
                 }
 
-                List<int> idsToDelete= await this.blogService
+                List<int> idsToDelete = await this.blogService
                    .GetRelatedProductsAsync(article.Id)
                    .Select(p => p.ProductId)
                    .ToListAsync();
@@ -198,7 +198,7 @@ namespace NorthwindMvcApp.Controllers
                     {
                         await this.blogService.CreateRelatedProductAsync(new BlogArticleProduct(article.Id, prodId));
                     }
-                }               
+                }
 
                 return RedirectToAction(nameof(Index));
             }
@@ -279,6 +279,78 @@ namespace NorthwindMvcApp.Controllers
             }
 
             return RedirectToAction(nameof(Details), new { id = inputModel.ArticleId });
+        }
+
+        [Authorize(Roles = "admin,customer")]
+        public async Task<IActionResult> EditComment(int articleId, int commentId)
+        {
+            var comment = await this.blogService
+                .GetBlogArticleCommentsAsync(articleId, 0, int.MaxValue)
+                .Where(c => c.Id == commentId)
+                .FirstOrDefaultAsync();
+
+            if (comment is null)
+            {
+                return this.NotFound();
+            }
+
+            var commentModel = this.mapper.Map<BlogCommentViewModel>(comment);
+
+            return View(commentModel);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles = "admin,customer")]
+        public async Task<IActionResult> EditComment(int id, BlogCommentViewModel inputModel)
+        {
+            if (ModelState.IsValid)
+            {
+                var comment = this.mapper.Map<BlogComment>(inputModel);
+                comment.Posted = DateTime.Now;
+
+                bool isUpdated = await this.blogService.UpdateBlogArticleCommentAsync(inputModel.ArticleId, inputModel.Id, comment);
+                if (!isUpdated)
+                {
+                    return this.NotFound();
+                }
+            }
+
+            return RedirectToAction(nameof(Details), new { id = inputModel.ArticleId });
+        }
+
+        [Authorize(Roles = "customer,admin")]
+        public async Task<IActionResult> DeleteComment(int articleId, int commentId)
+        {
+            var comment = await this.blogService
+                .GetBlogArticleCommentsAsync(articleId, 0, int.MaxValue)
+                .Where(c => c.Id == commentId)
+                .FirstOrDefaultAsync();
+
+            if (comment is null)
+            {
+                return this.NotFound();
+            }
+
+            var viewModel = this.mapper.Map<BlogCommentViewModel>(comment);
+
+            return View(viewModel);
+        }
+
+        // POST: BlogArticles/Delete/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles = "customer,admin")]
+        public async Task<IActionResult> DeleteCommentConfirmed(int articleId, int commentId)
+        {
+            bool isDeleted = await this.blogService.DeleteBlogArticleCommentAsync(articleId, commentId);
+
+            if (!isDeleted)
+            {
+                return NotFound();
+            }
+
+            return RedirectToAction(nameof(Details), new { id = articleId });
         }
     }
 }

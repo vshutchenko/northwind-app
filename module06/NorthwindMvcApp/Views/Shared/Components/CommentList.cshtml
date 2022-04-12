@@ -7,6 +7,13 @@
                 <h5 class="card-title">Posted by: @comment.AuthorName</h5>
                 <p class="card-text">@comment.Text</p>
                 <p class="card-text">@comment.Posted</p>
+                @if (User.FindFirst(x => x.Type == ClaimTypes.Role).Value == "admin"
+                || (User.FindFirst(x => x.Type == ClaimTypes.Role).Value == "customer"
+                && User.FindFirst(x => x.Type == "NorthwindId").Value == comment.AuthorId))
+               {
+                   <a class="btn btn-warning" asp-action="EditComment" asp-route-articleId="@comment.ArticleId" asp-route-commentId="@comment.Id">Edit</a>
+                   <a class="btn btn-danger" asp-action="DeleteComment" asp-route-articleId="@comment.ArticleId" asp-route-commentId="@comment.Id">Delete</a>
+               }
             </div>
         </div>
     }
