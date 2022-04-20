@@ -1,11 +1,14 @@
-﻿using Microsoft.AspNetCore.Authentication;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using NorthwindMvcApp.Models;
-using NorthwindMvcApp.ViewModels.Users;
+using NorthwindMvcApp.ViewModels.Account;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 
@@ -15,10 +18,11 @@ namespace NorthwindMvcApp.Controllers
     [Authorize]
     public class AccountController : Controller
     {
-        private IdentityContext _context;
+        private readonly IdentityContext context;
+
         public AccountController(IdentityContext context)
         {
-            _context = context;
+            this.context = context ?? throw new ArgumentNullException(nameof(context));
         }
 
         [HttpGet]
@@ -35,7 +39,7 @@ namespace NorthwindMvcApp.Controllers
         {
             if (ModelState.IsValid)
             {
-                User user = await _context.Users
+                User user = await this.context.Users
                     .Include(u => u.Role)
                     .FirstOrDefaultAsync(u => u.Name == model.Name);
 
@@ -51,7 +55,7 @@ namespace NorthwindMvcApp.Controllers
                 {
                     await Authenticate(user);
                     return RedirectToAction("Index", "Home");
-                } 
+                }
             }
 
             return View(model);
@@ -61,6 +65,11 @@ namespace NorthwindMvcApp.Controllers
         {
             HttpContext.SignOutAsync();
             return RedirectToAction("Index", "Home");
+        }
+
+        public ActionResult AccessDenied()
+        {
+            return View();
         }
 
         private async Task Authenticate(User user)

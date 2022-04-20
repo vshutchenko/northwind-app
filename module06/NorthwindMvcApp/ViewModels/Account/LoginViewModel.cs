@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace NorthwindMvcApp.ViewModels.Users
+namespace NorthwindMvcApp.ViewModels.Account
 {
     public class LoginViewModel
     {

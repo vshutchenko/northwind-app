@@ -2,7 +2,9 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<div class="alert alert-danger" role="alert">
-  @ViewBag.Message
-</div>
+<div class="alert alert-danger">  
+    <h1>An error occured</h1>  
+    <h3>@ViewBag.Message</h3>  
+</div> 
+
 <a class="btn  btn-primary" asp-action="Index">Back to List</a>

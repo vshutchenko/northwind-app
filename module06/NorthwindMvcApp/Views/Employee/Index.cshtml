@@ -1,12 +1,12 @@
-﻿@using NorthwindMvcApp.ViewModels.Product
-@model ProductsListViewModel
+﻿@using NorthwindMvcApp.ViewModels.Employee
+@model EmployeeListViewModel
 
 @{
     ViewData["Title"] = "Index";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h1>Products</h1>
+<h1>Employees</h1>
 
 @if (this.User.IsAdmin())
 {
@@ -15,8 +15,7 @@
     </p>
 }
 
-
-<partial name="Components/ProductsTable" model="@Model.Products" />
+<partial name="Components/EmployeeList" model="@Model.Employees" />
 
 <div page-model="@Model.PagingInfo" page-action="Index" page-classes-enabled="true"
      page-class="btn" page-class-normal="btn-outline-dark"

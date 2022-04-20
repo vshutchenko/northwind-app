@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using Microsoft.AspNetCore.Http;
 using Northwind.DataAccess.Customers;
 using Northwind.DataAccess.Employees;
 using Northwind.DataAccess.Products;
@@ -9,11 +8,13 @@ using Northwind.Services.Employees;
 using Northwind.Services.EntityFrameworkCore.Blogging.Entities;
 using Northwind.Services.EntityFrameworkCore.Entities;
 using Northwind.Services.Products;
+using NorthwindMvcApp.Models;
 using NorthwindMvcApp.ViewModels;
 using NorthwindMvcApp.ViewModels.Article;
 using NorthwindMvcApp.ViewModels.Category;
+using NorthwindMvcApp.ViewModels.Employee;
 using NorthwindMvcApp.ViewModels.Product;
-using System.IO;
+using NorthwindMvcApp.ViewModels.User;
 
 namespace NorthwindMvcApp
 {
@@ -28,7 +29,13 @@ namespace NorthwindMvcApp
         public MappingProfile()
         {
             this.CreateMap<BlogArticle, BlogArticleInputViewModel>().ForMember(x => x.AllProducts, opt => opt.Ignore()).ReverseMap();
+            this.CreateMap<EmployeeViewModel, Employee>().ReverseMap();
+            this.CreateMap<EmployeeInputViewModel, Employee>()
+                .ForSourceMember(x => x.NewPhoto, opt => opt.DoNotValidate())
+                .ForSourceMember(x => x.EmployeeItems, opt => opt.DoNotValidate())
+                .ReverseMap();
 
+            this.CreateMap<User, UserViewModel>();
 
             this.CreateMap<Product, ProductViewModel>().ReverseMap();
             this.CreateMap<ProductInputViewModel, Product>().ForSourceMember(x => x.CategoryItems, opt => opt.DoNotValidate()).ReverseMap();

@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using NorthwindMvcApp.Models;
 using System;
 
 namespace NorthwindMvcApp
@@ -35,11 +34,6 @@ namespace NorthwindMvcApp
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IServiceProvider serviceProvider)
         {
-            var data = new SeedData(serviceProvider.GetService<IdentityContext>(), new Uri(this.Configuration["northwindApiBaseUrl"]));
-            data.SeedCustomers();
-            data.SeedEmployees();
-            data.SeedAdmin();
-
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();

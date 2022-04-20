@@ -17,20 +17,22 @@ using System.Threading.Tasks;
 namespace NorthwindMvcApp.Controllers
 {
     [Authorize]
-    public class BlogArticlesController : Controller
+    public class BlogArticleController : Controller
     {
         private readonly IBloggingService blogService;
         private readonly IMapper mapper;
         private readonly ApiClient apiClient;
         private readonly IdentityContext context;
         private readonly int pageSize = 10;
+        private readonly IAuthorizationService authorizationService;
 
-        public BlogArticlesController(IBloggingService blogService, ApiClient apiClient, IdentityContext context, IMapper mapper)
+        public BlogArticleController(IBloggingService blogService, ApiClient apiClient, IdentityContext context, IMapper mapper, IAuthorizationService authorizationService)
         {
             this.blogService = blogService ?? throw new ArgumentNullException(nameof(blogService));
             this.apiClient = apiClient ?? throw new ArgumentNullException(nameof(apiClient));
             this.context = context ?? throw new ArgumentNullException(nameof(context));
             this.mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
+            this.authorizationService = authorizationService ?? throw new ArgumentNullException(nameof(authorizationService));
         }
 
         // GET: BlogArticles
@@ -125,13 +127,7 @@ namespace NorthwindMvcApp.Controllers
                 article.Posted = DateTime.Now;
                 int id = await this.blogService.CreateBlogArticleAsync(article);
 
-                if (id < 1)
-                {
-                    ViewBag.Message = "Cannot create article";
-                    return View("OperationCanceled");
-                }
-
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction(nameof(Details), new { id = id });
             }
 
             return View(inputModel);
@@ -142,9 +138,17 @@ namespace NorthwindMvcApp.Controllers
         public async Task<IActionResult> Edit(int id)
         {
             var article = await this.blogService.GetBlogArticleAsync(id);
-            if (article == null)
+
+            if (article is null)
             {
-                return NotFound();
+                return this.NotFound();
+            }
+
+            var isAuthorized = await this.authorizationService.AuthorizeAsync(User, article, "ArticleAccessPolicy");
+
+            if (!isAuthorized.Succeeded)
+            {
+                return this.Forbid();
             }
 
             List<BlogArticleProduct> relatedProducts = await this.blogService.GetRelatedProductsAsync(id).ToListAsync();
@@ -174,6 +178,13 @@ namespace NorthwindMvcApp.Controllers
                 var article = this.mapper.Map<BlogArticle>(inputModel);
                 article.Posted = DateTime.Now;
 
+                var isAuthorized = await this.authorizationService.AuthorizeAsync(User, article, "ArticleAccessPolicy");
+
+                if (!isAuthorized.Succeeded)
+                {
+                    return this.Forbid();
+                }
+
                 bool isUpdated = await this.blogService.UpdateBlogArticleAsync(id, article);
 
                 if (!isUpdated)
@@ -182,15 +193,7 @@ namespace NorthwindMvcApp.Controllers
                     return View("OperationCanceled");
                 }
 
-                List<int> idsToDelete = await this.blogService
-                   .GetRelatedProductsAsync(article.Id)
-                   .Select(p => p.ProductId)
-                   .ToListAsync();
-
-                foreach (var idToDelete in idsToDelete)
-                {
-                    await this.blogService.DeleteRelatedProductAsync(article.Id, idToDelete);
-                }
+                await this.DeleteRelatedProducts(article.Id);
 
                 if (inputModel.RelatedProductsIds != null)
                 {
@@ -212,9 +215,16 @@ namespace NorthwindMvcApp.Controllers
         {
             var article = await this.blogService.GetBlogArticleAsync(id);
 
-            if (article == null)
+            if (article is null)
             {
-                return NotFound();
+                return this.NotFound();
+            }
+
+            var isAuthorized = await this.authorizationService.AuthorizeAsync(User, article, "ArticleAccessPolicy");
+
+            if (!isAuthorized.Succeeded)
+            {
+                return this.Forbid();
             }
 
             var viewModel = this.mapper.Map<BlogArticleViewModel>(article);
@@ -228,30 +238,27 @@ namespace NorthwindMvcApp.Controllers
         [Authorize(Roles = "employee,admin")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            List<int> relatedProductIdsToDelete = await this.blogService
-                .GetRelatedProductsAsync(id)
-                .Select(p => p.ProductId)
-                .ToListAsync();
+            var article = await this.blogService.GetBlogArticleAsync(id);
 
-            foreach (var relatedProductId in relatedProductIdsToDelete)
+            if (article is null)
             {
-                await this.blogService.DeleteRelatedProductAsync(id, relatedProductId);
+                return this.NotFound();
             }
 
-            List<int> commentIdsToDelete = await this.blogService
-                .GetBlogArticleCommentsAsync(id, 0, int.MaxValue)
-                .Select(c => c.Id)
-                .ToListAsync();
+            var isAuthorized = await this.authorizationService.AuthorizeAsync(User, article, "ArticleAccessPolicy");
 
-            foreach (var idToDelete in commentIdsToDelete)
+            if (!isAuthorized.Succeeded)
             {
-                await this.blogService.DeleteBlogArticleCommentAsync(id, idToDelete);
+                return this.Forbid();
             }
+
+            await this.DeleteRelatedProducts(id);
+            await this.DeleteComments(id);
 
             bool isDeleted = await this.blogService.DeleteBlogArticleAsync(id);
             if (!isDeleted)
             {
-                ViewBag.Message = "Cannot delete";
+                ViewBag.Message = "Cannot delete article";
                 return View("OperationCanceled");
             }
 
@@ -284,14 +291,18 @@ namespace NorthwindMvcApp.Controllers
         [Authorize(Roles = "admin,customer")]
         public async Task<IActionResult> EditComment(int articleId, int commentId)
         {
-            var comment = await this.blogService
-                .GetBlogArticleCommentsAsync(articleId, 0, int.MaxValue)
-                .Where(c => c.Id == commentId)
-                .FirstOrDefaultAsync();
+            var comment = await this.blogService.GetBlogArticleCommentAsync(articleId, commentId);
 
             if (comment is null)
             {
                 return this.NotFound();
+            }
+
+            var isAuthorized = await this.authorizationService.AuthorizeAsync(User, comment, "CommentAccessPolicy");
+
+            if (!isAuthorized.Succeeded)
+            {
+                return this.Forbid();
             }
 
             var commentModel = this.mapper.Map<BlogCommentViewModel>(comment);
@@ -309,6 +320,13 @@ namespace NorthwindMvcApp.Controllers
                 var comment = this.mapper.Map<BlogComment>(inputModel);
                 comment.Posted = DateTime.Now;
 
+                var isAuthorized = await this.authorizationService.AuthorizeAsync(User, comment, "CommentAccessPolicy");
+
+                if (!isAuthorized.Succeeded)
+                {
+                    return this.Forbid();
+                }
+
                 bool isUpdated = await this.blogService.UpdateBlogArticleCommentAsync(inputModel.ArticleId, inputModel.Id, comment);
                 if (!isUpdated)
                 {
@@ -322,14 +340,18 @@ namespace NorthwindMvcApp.Controllers
         [Authorize(Roles = "customer,admin")]
         public async Task<IActionResult> DeleteComment(int articleId, int commentId)
         {
-            var comment = await this.blogService
-                .GetBlogArticleCommentsAsync(articleId, 0, int.MaxValue)
-                .Where(c => c.Id == commentId)
-                .FirstOrDefaultAsync();
+            var comment = await this.blogService.GetBlogArticleCommentAsync(articleId, commentId);
 
             if (comment is null)
             {
                 return this.NotFound();
+            }
+
+            var isAuthorized = await this.authorizationService.AuthorizeAsync(User, comment, "CommentAccessPolicy");
+
+            if (!isAuthorized.Succeeded)
+            {
+                return this.Forbid();
             }
 
             var viewModel = this.mapper.Map<BlogCommentViewModel>(comment);
@@ -343,14 +365,49 @@ namespace NorthwindMvcApp.Controllers
         [Authorize(Roles = "customer,admin")]
         public async Task<IActionResult> DeleteCommentConfirmed(int articleId, int commentId)
         {
-            bool isDeleted = await this.blogService.DeleteBlogArticleCommentAsync(articleId, commentId);
+            var comment = await this.blogService.GetBlogArticleCommentAsync(articleId, commentId);
 
-            if (!isDeleted)
+            if (comment is null)
             {
-                return NotFound();
+                return this.NotFound();
             }
 
+            var isAuthorized = await this.authorizationService.AuthorizeAsync(User, comment, "CommentAccessPolicy");
+
+            if (!isAuthorized.Succeeded)
+            {
+                return this.Forbid();
+            }
+
+            await this.blogService.DeleteBlogArticleCommentAsync(articleId, commentId);
+
             return RedirectToAction(nameof(Details), new { id = articleId });
+        }
+
+        private async Task DeleteRelatedProducts(int articleId)
+        {
+            List<int> relatedProductIdsToDelete = await this.blogService
+                .GetRelatedProductsAsync(articleId)
+                .Select(p => p.ProductId)
+                .ToListAsync();
+
+            foreach (var relatedProductId in relatedProductIdsToDelete)
+            {
+                await this.blogService.DeleteRelatedProductAsync(articleId, relatedProductId);
+            }
+        }
+
+        private async Task DeleteComments(int articleId)
+        {
+            List<int> commentIdsToDelete = await this.blogService
+                .GetBlogArticleCommentsAsync(articleId, 0, int.MaxValue)
+                .Select(c => c.Id)
+                .ToListAsync();
+
+            foreach (var idToDelete in commentIdsToDelete)
+            {
+                await this.blogService.DeleteBlogArticleCommentAsync(articleId, idToDelete);
+            }
         }
     }
 }

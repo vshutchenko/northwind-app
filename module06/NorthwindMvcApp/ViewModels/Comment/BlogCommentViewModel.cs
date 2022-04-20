@@ -16,7 +16,7 @@ namespace NorthwindMvcApp.ViewModels
         /// <summary>
         /// Gets or sets text.
         /// </summary>
-        [Required]
+        [Required(ErrorMessage = "The text is required.")]
         public string Text { get; set; }
 
         /// <summary>

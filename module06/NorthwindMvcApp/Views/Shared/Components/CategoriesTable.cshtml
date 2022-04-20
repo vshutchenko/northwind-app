@@ -14,7 +14,7 @@
             <th>
                 @Html.DisplayNameFor(model => model.Description)
             </th>
-            @if (this.User?.FindFirst(c => c.Type == ClaimTypes.Role)?.Value == "admin")
+            @if (this.User.IsAdmin())
             {
                 <th></th>
             }
@@ -40,7 +40,7 @@
                 <td>
                     @Html.DisplayFor(modelItem => item.Description)
                 </td>
-                @if (this.User?.FindFirst(c => c.Type == ClaimTypes.Role)?.Value == "admin")
+                @if (this.User.IsAdmin())
                 {
                     <td>
                         <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |

@@ -12,7 +12,8 @@ namespace NorthwindMvcApp
 {
     public class ApiClient
     {
-        private HttpClient httpClient = new HttpClient
+        private const int ReservedBytes = 78;
+        private readonly HttpClient httpClient = new HttpClient
         {
             BaseAddress = new Uri("http://localhost:5000")
         };
@@ -173,10 +174,94 @@ namespace NorthwindMvcApp
 
                 var employee = await stream.DeserializeAsync<Employee>();
 
+                if (employee.Photo?.Length > 0)
+                {
+                    employee.Photo = employee.Photo[ReservedBytes..];
+                }
+
                 return employee;
             }
 
             return null;
+        }
+
+        public async IAsyncEnumerable<Employee> GetEmployeesAsync(int offset = 0, int limit = int.MaxValue)
+        {
+            var response = await this.httpClient.GetAsync($"api/employees?offset={offset}&limit={limit}");
+
+            if (response.IsSuccessStatusCode)
+            {
+                var stream = await response.Content.ReadAsStreamAsync();
+
+                var employees = stream.DeserializeAsyncEnumerable<Employee>();
+
+                await foreach (var e in employees)
+                {
+                    if (e.Photo?.Length > 0)
+                    {
+                        e.Photo = e.Photo[ReservedBytes..];
+                    }
+
+                    yield return e;
+                }
+            }
+
+            AsyncEnumerable.Empty<Employee>();
+        }
+
+        public async Task<bool> DeleteEmployeeAsync(int id)
+        {
+            var response = await this.httpClient.DeleteAsync($"api/employees/{id}");
+
+            return response.IsSuccessStatusCode;
+        }
+
+        public async Task<bool> UpdateEmployeeAsync(int id, Employee employee)
+        {
+            if (employee.Photo != null)
+            {
+                byte[] photo = new byte[employee.Photo.Length + ReservedBytes];
+
+                Array.Copy(employee.Photo, 0, photo, ReservedBytes, employee.Photo.Length);
+
+                employee.Photo = photo;
+            }
+
+            var json = await employee.SerializeAsync();
+
+            var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+            var response = await this.httpClient.PutAsync($"api/employees/{id}", content);
+
+            return response.IsSuccessStatusCode;
+        }
+
+        public async Task<(bool isCreated, int id)> CreateEmployeeAsync(Employee employee)
+        {
+            if (employee.Photo != null)
+            {
+                byte[] photo = new byte[employee.Photo.Length + ReservedBytes];
+
+                Array.Copy(employee.Photo, 0, photo, ReservedBytes, employee.Photo.Length);
+
+                employee.Photo = photo;
+            }
+
+            var json = await employee.SerializeAsync();
+
+            var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+            var response = await this.httpClient.PostAsync($"api/employees", content);
+
+            if (response.IsSuccessStatusCode)
+            {
+                var employeeStream = await response.Content.ReadAsStreamAsync();
+                var id = (await employeeStream.DeserializeAsync<Employee>()).Id;
+
+                return (true, id);
+            }
+
+            return (false, -1);
         }
 
         public async Task<Customer> GetCustomerAsync(string id)
@@ -193,6 +278,25 @@ namespace NorthwindMvcApp
             }
 
             return null;
+        }
+
+        public async IAsyncEnumerable<Customer> GetCustomersAsync(int offset = 0, int limit = int.MaxValue)
+        {
+            var response = await this.httpClient.GetAsync($"api/customers?offset={offset}&limit={limit}");
+
+            if (response.IsSuccessStatusCode)
+            {
+                var stream = await response.Content.ReadAsStreamAsync();
+
+                var customers = stream.DeserializeAsyncEnumerable<Customer>();
+
+                await foreach (var c in customers)
+                {
+                    yield return c;
+                }
+            }
+
+            AsyncEnumerable.Empty<Customer>();
         }
 
         private async Task<byte[]> GetCategoryPictureAsync(int id)

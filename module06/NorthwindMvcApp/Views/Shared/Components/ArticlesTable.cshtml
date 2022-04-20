@@ -26,28 +26,23 @@
                 <td>
                     @Html.DisplayFor(modelItem => item.Title)
                 </td>
+
                 <td>
                     @Html.DisplayFor(modelItem => shortString)
                 </td>
+
                 <td style="min-width: 100px">
                     @Html.DisplayFor(modelItem => date)
                 </td>
-                
-                @if (this.User?.FindFirst(c => c.Type == ClaimTypes.Role)?.Value == "admin"
-                || this.User?.FindFirst(c => c.Type == "NorthwindId")?.Value == item.AuthorId.ToString())
-                {
-                    <td>
-                    <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                    <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                    <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-                    </td>
-                }
-                else
-                {
-                    <td>
+
+                <td>
                     <a asp-action="Details" asp-route-id="@item.Id">Details</a>
-                    </td>
-                }
+                    @if (@User.IsAdmin() || @User.IsAuthor(item.AuthorId.ToString()))
+                    {
+                        <span>| <a asp-action="Edit" asp-route-id="@item.Id">Edit</a></span>
+                        <span>| <a asp-action="Delete" asp-route-id="@item.Id">Delete</a></span>
+                    }
+                </td>
             </tr>
         }
     </tbody>

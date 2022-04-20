@@ -1,33 +1,33 @@
-﻿@using NorthwindMvcApp.ViewModels.Users
+﻿@using NorthwindMvcApp.ViewModels.Account
 @model LoginViewModel
 
-@if (User.Identity.IsAuthenticated)
-{
-    <h2>You are logged in as @User.Identity.Name</h2>
-}
-else
-{
-    <h2>Login</h2>
+<div class="container py-5 h-100">
+    <div class="row d-flex justify-content-center align-items-center h-100">
+        <div class="col-12 col-md-8 col-lg-6 col-xl-5">
+            <div class="card shadow-2-strong" style="border-radius: 1rem;">
+                <div class="card-body p-5 text-center">
+                    <form asp-action="Login" asp-controller="Account" asp-anti-forgery="true">
+                        <h3 class="mb-5">Sign in</h3>
 
-    <form asp-action="Login" asp-controller="Account" asp-anti-forgery="true">
-        <div class="validation" asp-validation-summary="ModelOnly" class="text-danger"></div>
-        <div>
-            <div class="form-group w-25">
-                <label asp-for="Name" class="control-label">Enter user name</label>
-                <input type="text" asp-for="Name" class="form-control" />
-                <span asp-validation-for="Name" class="text-danger" />
-            </div>
-            <div class="form-group w-25">
-                <label asp-for="Password" class="control-label">Enter your password</label>
-                <input asp-for="Password" class="form-control" />
-                <span asp-validation-for="Password" class="text-danger" />
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Login" class="btn btn-primary" />
+                        <div class="validation text-left" asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                        <div class="form-outline mb-4">
+                            <input asp-for="Name" class="form-control form-control-lg" placeholder="Username" />
+                            <span asp-validation-for="Name" class="text-danger text-left" />
+                        </div>
+
+                        <div class="form-outline mb-4">
+                            <input asp-for="Password" class="form-control form-control-lg" placeholder="Password" />
+                            <span asp-validation-for="Password" class="text-danger text-left" />
+                        </div>
+
+                        <input type="submit" value="Login" class="btn btn-primary btn-lg btn-block" />
+                    </form>
+                </div>
             </div>
         </div>
-    </form>
-}
+    </div>
+</div>
 
 @section Scripts {
     @{

@@ -1,4 +1,4 @@
-﻿using System.ComponentModel;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace NorthwindMvcApp.ViewModels.Product
 {
@@ -20,41 +20,43 @@ namespace NorthwindMvcApp.ViewModels.Product
         /// <summary>
         /// Gets or sets a supplier identifier.
         /// </summary>
+        [Display(Name = "Supplier")]
         public int? SupplierId { get; set; }
 
         /// <summary>
         /// Gets or sets a category identifier.
         /// </summary>
+        [Display(Name = "Category")]
         public int? CategoryId { get; set; }
 
         /// <summary>
         /// Gets or sets a quantity per unit.
         /// </summary>
-        [DisplayName("Quantity per unit")]
+        [Display(Name = "Quantity per unit")]
         public string QuantityPerUnit { get; set; }
 
         /// <summary>
         /// Gets or sets a unit price.
         /// </summary>
-        [DisplayName("Unit price")]
+        [Display(Name = "Unit price")]
         public decimal? UnitPrice { get; set; }
 
         /// <summary>
         /// Gets or sets an amount of units in stock.
         /// </summary>
-        [DisplayName("Units in stock")]
+        [Display(Name = "Units in stock")]
         public short? UnitsInStock { get; set; }
 
         /// <summary>
         /// Gets or sets an amount of units on order.
         /// </summary>
-        [DisplayName("Units on order")]
+        [Display(Name = "Units on order")]
         public short? UnitsOnOrder { get; set; }
 
         /// <summary>
         /// Gets or sets a reorder level.
         /// </summary>
-        [DisplayName("Reorder level")]
+        [Display(Name = "Reorder level")]
         public short? ReorderLevel { get; set; }
 
         /// <summary>
@@ -65,7 +67,7 @@ namespace NorthwindMvcApp.ViewModels.Product
         /// <summary>
         /// Gets or sets a category name.
         /// </summary>
-        [DisplayName("Category")]
+        [Display(Name = "Category")]
         public string CategoryName { get; set; }
     }
 }

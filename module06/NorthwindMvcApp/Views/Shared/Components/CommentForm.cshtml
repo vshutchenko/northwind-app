@@ -11,10 +11,10 @@
             <div class="form-group">
                 <textarea rows="6" asp-for="Text" class="form-control"></textarea>
                 <span asp-validation-for="Text" class="text-danger"></span>
-                <input asp-for="ArticleId" type="hidden"/>@Context.Request.RouteValues["article-id"]
+                <input asp-for="ArticleId" type="hidden" value="@Model.ArticleId" />
             </div>
             <div class="form-group">
-                <input type="submit" value="Leave comment" class="btn btn-primary" />
+                <input type="submit" value="Leave a comment" class="btn btn-primary" />
             </div>
         </form>
 </div>

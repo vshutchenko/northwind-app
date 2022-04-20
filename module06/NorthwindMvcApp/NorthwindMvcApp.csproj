@@ -5,13 +5,6 @@
 		<CodeAnalysisRuleSet>Properties\code-analysis.ruleset</CodeAnalysisRuleSet>
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>
 	</PropertyGroup>
-
-	<ItemGroup>
-	  <Compile Remove="ViewModels\Employee\**" />
-	  <Content Remove="ViewModels\Employee\**" />
-	  <EmbeddedResource Remove="ViewModels\Employee\**" />
-	  <None Remove="ViewModels\Employee\**" />
-	</ItemGroup>
 	<ItemGroup>
 		<AdditionalFiles Include="..\stylecop.json" Link="Properties\stylecop.json" />
 		<AdditionalFiles Include="..\code-analysis.ruleset" Link="Properties\code-analysis.ruleset" />

@@ -1,9 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc.Rendering;
-using NorthwindMvcApp.ViewModels.Product;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
 
 namespace NorthwindMvcApp.ViewModels.Article
 {
@@ -20,30 +18,29 @@ namespace NorthwindMvcApp.ViewModels.Article
         /// <summary>
         /// Gets or sets title.
         /// </summary>
-        [Required]
+        [Required(ErrorMessage = "The title is required.")]
         [StringLength(50)]
         public string Title { get; set; }
 
         /// <summary>
         /// Gets or sets publication date.
         /// </summary>
-        [Required]
         public DateTime Posted { get; set; }
 
         /// <summary>
         /// Gets or sets text.
         /// </summary>
-        [Required]
+        [Required(ErrorMessage = "The text is required.")]
         public string Text { get; set; }
 
         /// <summary>
         /// Gets or sets author id.
         /// </summary>
-        [Required]
         public int AuthorId { get; set; }
 
         public IEnumerable<int> RelatedProductsIds { get; set; }
-
+        
+        [Display(Name = "Products")]
         public IEnumerable<SelectListItem> AllProducts { get; set; }
     }
 }

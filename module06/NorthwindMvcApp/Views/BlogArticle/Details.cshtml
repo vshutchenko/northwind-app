@@ -8,20 +8,23 @@
 <div>
     <h3>@Model.Title</h3>
     <hr />
-    <img src="data:image;base64,@Convert.ToBase64String(@Model.AuthorPhoto is null || @Model.AuthorPhoto.Length == 0  ? Array.Empty<byte>() : @Model.AuthorPhoto[78..])" width="60" height="60" />
+    <div class="col-md-4">
+        <img alt="No image" src="data:image;base64,@Convert.ToBase64String(@Model.AuthorPhoto)" width="60" height="60">
+    </div>
     <h3>@Model.AuthorName, @Model.Posted.ToShortDateString()</h3>
-    <p>@Model.Text</p>
     @if (@Model.RelatedProducts != null && @Model.RelatedProducts.Count() > 0)
     {
         <div>
             <h5>
-            @foreach (var product in @Model.RelatedProducts)
-            {
-                <span class="badge badge-primary bg-maroon">@product.Name</span>
-            }
+                @foreach (var product in @Model.RelatedProducts)
+                {
+                    <span class="badge badge-primary bg-maroon">@product.Name</span>
+                }
             </h5>
         </div>
     }
+    <p>@Model.Text</p>
+    
     <div>
         <div>
             <h4>Leave a comment...</h4>

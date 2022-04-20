@@ -5,15 +5,15 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
+<h5>Edit comment</h5>
+
 <form asp-action="EditComment" style="margin-bottom: 10px">
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
     <div class="form-group">
         <input asp-for="Id" type="hidden" />
-        <input asp-for="Posted" type="hidden" />
+        <input asp-for="ArticleId" type="hidden" />
         <input asp-for="AuthorId" type="hidden" />
         <input asp-for="AuthorName" type="hidden" />
-        <input asp-for="ArticleId" type="hidden" />
-        <label asp-for="Text" class="control-label">Edit comment</label>
         <textarea asp-for="Text" rows="6" class="form-control">@Model.Text</textarea>
         <span asp-validation-for="Text" class="text-danger"></span>
     </div>
