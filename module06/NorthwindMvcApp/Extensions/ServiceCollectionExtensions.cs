@@ -18,6 +18,9 @@ using System;
 using NorthwindMvcApp.Models;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Northwind.Services.Customers;
+using Microsoft.AspNetCore.Authorization;
+using NorthwindMvcApp.Authorization;
+using Microsoft.AspNetCore.Authorization.Infrastructure;
 
 namespace NorthwindMvcApp
 {
@@ -54,13 +57,20 @@ namespace NorthwindMvcApp
                 .AddCookie(options =>
                 {
                     options.LoginPath = new Microsoft.AspNetCore.Http.PathString("/Account/Login");
-                    options.AccessDeniedPath = new Microsoft.AspNetCore.Http.PathString("/Account/Login");
+                    options.AccessDeniedPath = new Microsoft.AspNetCore.Http.PathString("/Account/AccessDenied");
                 });
 
-            services.AddControllers(options =>
+            services.AddAuthorization(options =>
             {
-                options.SuppressAsyncSuffixInActionNames = false;
+                options.AddPolicy("CommentAccessPolicy", policy =>
+                    policy.Requirements.Add(new OperationAuthorizationRequirement()));
+
+                options.AddPolicy("ArticleAccessPolicy", policy =>
+                    policy.Requirements.Add(new OperationAuthorizationRequirement()));
             });
+
+            services.AddScoped<IAuthorizationHandler, CommentAccessAuthorizationHandler>();
+            services.AddScoped<IAuthorizationHandler, ArticleAccessAuthorizationHandler>();
         }
 
         /// <summary>
@@ -90,13 +100,20 @@ namespace NorthwindMvcApp
                 .AddCookie(options =>
                 {
                     options.LoginPath = new Microsoft.AspNetCore.Http.PathString("/Account/Login");
-                    options.AccessDeniedPath = new Microsoft.AspNetCore.Http.PathString("/Account/Login");
+                    options.AccessDeniedPath = new Microsoft.AspNetCore.Http.PathString("/Account/AccessDenied");
                 });
 
-            services.AddControllers(options =>
+            services.AddAuthorization(options =>
             {
-                options.SuppressAsyncSuffixInActionNames = false;
+                options.AddPolicy("CommentAccessPolicy", policy =>
+                    policy.Requirements.Add(new OperationAuthorizationRequirement()));
+
+                options.AddPolicy("ArticleAccessPolicy", policy =>
+                    policy.Requirements.Add(new OperationAuthorizationRequirement()));
             });
+
+            services.AddScoped<IAuthorizationHandler, CommentAccessAuthorizationHandler>();
+            services.AddScoped<IAuthorizationHandler, ArticleAccessAuthorizationHandler>();
         }
     }
 }
