@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
+using System.Globalization;
 using System.Threading.Tasks;
 using Northwind.DataAccess.Employees;
 
@@ -45,9 +46,9 @@ namespace Northwind.DataAccess.SqlServer.Employees
                     await this.connection.OpenAsync();
                 }
 
-                int insertedCount = await sqlCommand.ExecuteNonQueryAsync();
+                int id = Convert.ToInt32(await sqlCommand.ExecuteScalarAsync(), CultureInfo.InvariantCulture);
 
-                return insertedCount;
+                return id;
             }
         }
 

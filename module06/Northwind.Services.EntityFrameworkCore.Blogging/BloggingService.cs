@@ -150,6 +150,16 @@ namespace Northwind.Services.EntityFrameworkCore.Blogging
         }
 
         /// <inheritdoc/>
+        public async Task<BlogComment> GetBlogArticleCommentAsync(int articleId, int commentId)
+        {
+            var commentEntity = await this.context.BlogComments
+                .Where(c => c.Id == commentId && c.ArticleId == articleId)
+                .FirstOrDefaultAsync();
+
+            return this.mapper.Map<BlogComment>(commentEntity);
+        }
+
+        /// <inheritdoc/>
         public async IAsyncEnumerable<BlogComment> GetBlogArticleCommentsAsync(int articleId, int offset, int limit)
         {
             var query = this.context.BlogComments

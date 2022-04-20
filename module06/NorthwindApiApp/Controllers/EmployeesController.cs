@@ -79,7 +79,8 @@ namespace NorthwindApiApp.Controllers
             int id = await this.service.CreateEmployeeAsync(employee);
             if (id > 0)
             {
-                return this.CreatedAtAction(nameof(PostEmployeeAsync), new { Id = id }, employee);
+                employee.Id = id;
+                return this.CreatedAtAction(nameof(PostEmployeeAsync), employee);
             }
             else
             {

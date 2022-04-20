@@ -77,6 +77,14 @@ namespace Northwind.Services.Blogging
         public IAsyncEnumerable<BlogComment> GetBlogArticleCommentsAsync(int articleId, int offset, int limit);
 
         /// <summary>
+        /// Gets article comment.
+        /// </summary>
+        /// <param name="articleId">Blog article id.</param>
+        /// <param name="commentId">Comment id.</param>
+        /// <returns>Comment.</returns>
+        public Task<BlogComment> GetBlogArticleCommentAsync(int articleId, int commentId);
+
+        /// <summary>
         /// Creates comment for article.
         /// </summary>
         /// <param name="comment">Comment to create.</param>
