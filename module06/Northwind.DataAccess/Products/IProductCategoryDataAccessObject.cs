@@ -50,5 +50,11 @@ namespace Northwind.DataAccess.Products
         /// <param name="productCategoryNames">A <see cref="ICollection{T}"/> of product category names.</param>
         /// <returns>A <see cref="List{T}"/> of <see cref="ProductCategoryTransferObject"/>.</returns>
         IAsyncEnumerable<ProductCategoryTransferObject> SelectProductCategoriesByNameAsync(IEnumerable<string> productCategoryNames);
+
+        /// <summary>
+        /// Get caegories count.
+        /// </summary>
+        /// <returns>A <see cref="Task{T}"/> of <see cref="int"/>.</returns>
+        Task<int> CountAsync();
     }
 }

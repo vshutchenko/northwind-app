@@ -189,3 +189,19 @@ CREATE PROCEDURE [dbo].[UpdateProduct]
 AS UPDATE [dbo].[Products]
 SET ProductName = @productName, SupplierID = @supplierId, CategoryID = @categoryId, QuantityPerUnit = @quantityPerUnit, UnitPrice = @unitPrice, UnitsInStock = @unitsInStock, UnitsOnOrder = @unitsOnOrder, ReorderLevel = @reorderLevel, Discontinued = @discontinued
 WHERE [dbo].[Products].[ProductID] = @id
+
+GO
+CREATE PROCEDURE [dbo].[GetProductsCount]
+AS SELECT count(*) FROM [dbo].[Products]
+
+GO
+CREATE PROCEDURE [dbo].[GetCustomersCount]
+AS SELECT count(*) FROM [dbo].[Customers]
+
+GO
+CREATE PROCEDURE [dbo].[GetEmployeesCount]
+AS SELECT count(*) FROM [dbo].[Employees]
+
+GO
+CREATE PROCEDURE [dbo].[GetCategoriesCount]
+AS SELECT count(*) FROM [dbo].[Categories]

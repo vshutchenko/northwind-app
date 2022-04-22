@@ -30,21 +30,18 @@ namespace NorthwindMvcApp.Controllers
 
         public async Task<IActionResult> Index(int currentPage = 1)
         {
-            List<EmployeeViewModel> employeeModels = new List<EmployeeViewModel>();
-
-            await foreach (var e in this.apiClient.GetEmployeesAsync())
-            {
-                employeeModels.Add(this.mapper.Map<EmployeeViewModel>(e));
-            }
-
             return View(new EmployeeListViewModel
             {
-                Employees = employeeModels.Skip((currentPage - 1) * pageSize).Take(pageSize),
+                Employees = await this.apiClient
+                  .GetEmployeesAsync((currentPage - 1) * pageSize, pageSize)
+                  .Select(e => this.mapper.Map<EmployeeViewModel>(e))
+                  .ToListAsync(),
+
                 PagingInfo = new PagingInfo
                 {
                     CurrentPage = currentPage,
                     ItemsPerPage = pageSize,
-                    TotalItems = employeeModels.Count(),
+                    TotalItems = await this.apiClient.GetEmployeesCountAsync(),
                 }
             });
         }

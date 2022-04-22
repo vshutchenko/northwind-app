@@ -58,5 +58,11 @@ namespace Northwind.Services.Products
         /// <param name="categoryId">A product category identifier.</param>
         /// <returns>A <see cref="IAsyncEnumerable{T}"/> of <see cref="Product"/>.</returns>
         IAsyncEnumerable<Product> GetProductsForCategoryAsync(int categoryId);
+
+        /// <summary>
+        /// Gets products count.
+        /// </summary>
+        /// <returns>Returns <see cref="Task{IActionResult}"/>.</returns>
+        public Task<int> CountAsync();
     }
 }

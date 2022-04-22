@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
+using System.Globalization;
 using System.Threading.Tasks;
 using Northwind.DataAccess.Products;
 
@@ -251,6 +252,22 @@ namespace Northwind.DataAccess.SqlServer.Products
                     }
                 }
             }
+        }
+
+        /// <inheritdoc/>
+        public async Task<int> CountAsync()
+        {
+            await using var sqlCommand = new SqlCommand("GetProductsCount", this.connection)
+            {
+                CommandType = CommandType.StoredProcedure,
+            };
+
+            if (this.connection.State != ConnectionState.Open)
+            {
+                await this.connection.OpenAsync();
+            }
+
+            return Convert.ToInt32(await sqlCommand.ExecuteScalarAsync(), CultureInfo.InvariantCulture);
         }
 
         private static SqlParameter[] GetProductParameters(ProductTransferObject product) =>

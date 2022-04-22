@@ -1,17 +1,11 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
 using Northwind.Services.Products;
 using NorthwindMvcApp.ViewModels;
 using NorthwindMvcApp.ViewModels.Category;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Net.Http;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace NorthwindMvcApp.Controllers
@@ -28,24 +22,21 @@ namespace NorthwindMvcApp.Controllers
             this.apiClient = apiClient ?? throw new ArgumentNullException(nameof(apiClient));
             this.mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
         }
-        
+
         public async Task<IActionResult> Index(int currentPage = 1)
         {
-            List<CategoryViewModel> categoryModels = new List<CategoryViewModel>();
-
-            await foreach (var c in this.apiClient.GetCategoriesAsync())
-            {
-                categoryModels.Add(this.mapper.Map<CategoryViewModel>(c));
-            }
-
             return View(new CategoryListViewModel
             {
-                Categories = categoryModels.Skip((currentPage - 1) * pageSize).Take(pageSize),
+                Categories = await this.apiClient
+                  .GetCategoriesAsync((currentPage - 1) * pageSize, pageSize)
+                  .Select(c => this.mapper.Map<CategoryViewModel>(c))
+                  .ToListAsync(),
+
                 PagingInfo = new PagingInfo
                 {
                     CurrentPage = currentPage,
                     ItemsPerPage = pageSize,
-                    TotalItems = categoryModels.Count(),
+                    TotalItems = await this.apiClient.GetCategoriesCountAsync(),
                 }
             });
         }
@@ -68,7 +59,7 @@ namespace NorthwindMvcApp.Controllers
                 {
                     category.Picture = await inputModel.NewPicture.GetBytesAsync();
                 }
-                
+
                 var response = await this.apiClient.CreateCategoryAsync(category);
 
                 if (!response.isCreated)
@@ -77,7 +68,7 @@ namespace NorthwindMvcApp.Controllers
                     return View("OperationCanceled");
                 }
             }
-            
+
             return RedirectToAction(nameof(Index));
         }
 
@@ -108,7 +99,7 @@ namespace NorthwindMvcApp.Controllers
                 {
                     category.Picture = await inputModel.NewPicture.GetBytesAsync();
                 }
-                
+
                 var isUpdated = await this.apiClient.UpdateCategoryAsync(id, category);
 
                 if (!isUpdated)

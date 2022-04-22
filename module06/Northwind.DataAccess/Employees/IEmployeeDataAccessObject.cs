@@ -43,5 +43,11 @@ namespace Northwind.DataAccess.Employees
         /// <param name="limit">A limit of returned objects.</param>
         /// <returns>A <see cref="List{T}"/> of <see cref="EmployeeTransferObject"/>.</returns>
         IAsyncEnumerable<EmployeeTransferObject> SelectEmployeesAsync(int offset, int limit);
+
+        /// <summary>
+        /// Get employees count.
+        /// </summary>
+        /// <returns>A <see cref="Task{T}"/> of <see cref="int"/>.</returns>
+        Task<int> CountAsync();
     }
 }

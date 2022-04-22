@@ -82,6 +82,12 @@ namespace Northwind.Services.EntityFrameworkCore.Services
         }
 
         /// <inheritdoc/>
+        public Task<int> CountAsync()
+        {
+            return this.context.Customers.CountAsync();
+        }
+
+        /// <inheritdoc/>
         public async Task<bool> UpdateCustomerAsync(string customerId, Customer customer)
         {
             customer = customer ?? throw new ArgumentNullException(nameof(customer));

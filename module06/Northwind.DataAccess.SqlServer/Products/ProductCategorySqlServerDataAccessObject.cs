@@ -220,6 +220,22 @@ namespace Northwind.DataAccess.SqlServer.Products
             }
         }
 
+        /// <inheritdoc/>
+        public async Task<int> CountAsync()
+        {
+            await using var sqlCommand = new SqlCommand("GetCategoriesCount", this.connection)
+            {
+                CommandType = CommandType.StoredProcedure,
+            };
+
+            if (this.connection.State != ConnectionState.Open)
+            {
+                await this.connection.OpenAsync();
+            }
+
+            return Convert.ToInt32(await sqlCommand.ExecuteScalarAsync(), CultureInfo.InvariantCulture);
+        }
+
         private static SqlParameter[] GetCategoryParameters(ProductCategoryTransferObject category) =>
             new[]
             {

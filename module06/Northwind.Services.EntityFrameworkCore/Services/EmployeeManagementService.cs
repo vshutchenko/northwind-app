@@ -130,5 +130,11 @@ namespace Northwind.Services.EntityFrameworkCore.Services
 
             return 0;
         }
+
+        /// <inheritdoc/>
+        public Task<int> CountAsync()
+        {
+            return this.context.Employees.CountAsync();
+        }
     }
 }

@@ -353,5 +353,27 @@ namespace NorthwindApiApp.Controllers
                 return this.NotFound();
             }
         }
+
+        /// <summary>
+        /// Gets articles count.
+        /// </summary>
+        /// <returns>Articles count.</returns>
+        // GET api/<BlogArticlesController>/count
+        [HttpGet("count")]
+        public async Task<ActionResult<int>> GetBlogArticlesCountAsync()
+        {
+            return this.Ok(await this.blogService.CountAsync());
+        }
+
+        /// <summary>
+        /// Gets article comments count.
+        /// </summary>
+        /// <returns>Article comments count.</returns>
+        // GET api/<BlogArticlesController>/{article-id}/comments/count
+        [HttpGet("{article-id}/comments/count")]
+        public async Task<ActionResult<int>> GetBlogArticlesCountAsync([FromRoute(Name = "article-id")] int articleId)
+        {
+            return this.Ok(await this.blogService.CommentsCountAsync(articleId));
+        }
     }
 }

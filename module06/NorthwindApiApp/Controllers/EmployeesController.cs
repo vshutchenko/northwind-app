@@ -131,5 +131,16 @@ namespace NorthwindApiApp.Controllers
                 return this.NotFound();
             }
         }
+
+        /// <summary>
+        /// Gets employees count.
+        /// </summary>
+        /// <returns>Employees count.</returns>
+        // GET api/<EmployeesController>/count
+        [HttpGet("count")]
+        public async Task<ActionResult<int>> GetEmployeesCountAsync()
+        {
+            return this.Ok(await this.service.CountAsync());
+        }
     }
 }

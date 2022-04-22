@@ -29,8 +29,8 @@ namespace NorthwindMvcApp.Controllers
         public async Task<IActionResult> Index(int currentPage = 1)
         {
             List<ProductViewModel> productModels = new List<ProductViewModel>();
-
-            await foreach (var p in this.apiClient.GetProductsAsync())
+ 
+            await foreach (var p in this.apiClient.GetProductsAsync((currentPage - 1) * pageSize, pageSize))
             {
                 var productModel = this.mapper.Map<ProductViewModel>(p);
 
@@ -49,12 +49,12 @@ namespace NorthwindMvcApp.Controllers
 
             return View(new ProductsListViewModel
             {
-                Products = productModels.Skip((currentPage - 1) * pageSize).Take(pageSize),
+                Products = productModels,
                 PagingInfo = new PagingInfo
                 {
                     CurrentPage = currentPage,
                     ItemsPerPage = pageSize,
-                    TotalItems = productModels.Count(),
+                    TotalItems = await this.apiClient.GetProductsCountAsync(),
                 }
             });
         }

@@ -38,19 +38,18 @@ namespace NorthwindMvcApp.Controllers
         // GET: BlogArticles
         public async Task<IActionResult> Index(int currentPage = 1)
         {
-            List<BlogArticleViewModel> viewModels = await this.blogService
-                .GetBlogArticlesAsync(0, int.MaxValue)
-                .Select(a => this.mapper.Map<BlogArticleViewModel>(a))
-                .ToListAsync();
-
             var listModel = new BlogArticleListViewModel
             {
-                Articles = viewModels.Skip((currentPage - 1) * pageSize).Take(pageSize),
+                Articles = await this.blogService
+                    .GetBlogArticlesAsync((currentPage - 1) * pageSize, pageSize)
+                    .Select(a => this.mapper.Map<BlogArticleViewModel>(a))
+                    .ToListAsync(),
+
                 PagingInfo = new PagingInfo
                 {
                     CurrentPage = currentPage,
                     ItemsPerPage = pageSize,
-                    TotalItems = viewModels.Count(),
+                    TotalItems = await this.blogService.CountAsync(),
                 }
             };
 
@@ -68,7 +67,7 @@ namespace NorthwindMvcApp.Controllers
 
             var author = await this.apiClient.GetEmployeeAsync(article.AuthorId);
 
-            List<BlogCommentViewModel> comments = await this.blogService.GetBlogArticleCommentsAsync(article.Id, 0, int.MaxValue)
+            List<BlogCommentViewModel> comments = await this.blogService.GetBlogArticleCommentsAsync(article.Id, (currentPage - 1) * 10, this.pageSize)
                 .Join(this.context.Users.AsAsyncEnumerable(), c => c.AuthorId, u => u.NorthwindDbId, (c, u) =>
                 {
                     var commentViewModel = this.mapper.Map<BlogCommentViewModel>(c);
@@ -94,12 +93,12 @@ namespace NorthwindMvcApp.Controllers
                 AuthorPhoto = author.Photo,
                 CommentList = new CommentListViewModel
                 {
-                    Comments = comments.Skip((currentPage - 1) * 10).Take(10),
+                    Comments = comments,
                     PagingInfo = new PagingInfo
                     {
                         CurrentPage = currentPage,
-                        ItemsPerPage = 10,
-                        TotalItems = comments.Count,
+                        ItemsPerPage = this.pageSize,
+                        TotalItems = await this.blogService.CommentsCountAsync(article.Id),
                     }
                 },
                 RelatedProducts = products,

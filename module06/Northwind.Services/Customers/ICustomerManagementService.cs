@@ -44,5 +44,11 @@ namespace Northwind.Services.Customers
         /// <param name="customer">A <see cref="Customer"/>.</param>
         /// <returns>True if an employee is updated; otherwise false.</returns>
         Task<bool> UpdateCustomerAsync(string customerId, Customer customer);
+
+        /// <summary>
+        /// Gets customers count.
+        /// </summary>
+        /// <returns>Returns <see cref="Task{IActionResult}"/>.</returns>
+        public Task<int> CountAsync();
     }
 }

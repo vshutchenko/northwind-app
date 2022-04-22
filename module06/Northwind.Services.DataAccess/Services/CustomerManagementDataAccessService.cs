@@ -77,5 +77,13 @@ namespace Northwind.Services.DataAccess.Services
                 .GetCustomerDataAccessObject()
                 .UpdateCustomerAsync(this.mapper.Map<CustomerTransferObject>(customer));
         }
+
+        /// <inheritdoc/>
+        public Task<int> CountAsync()
+        {
+            return this.accessFactory
+                .GetCustomerDataAccessObject()
+                .CountAsync();
+        }
     }
 }

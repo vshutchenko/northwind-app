@@ -77,5 +77,13 @@ namespace Northwind.Services.DataAccess.Services
                 .GetEmployeeDataAccessObject()
                 .UpdateEmployeeAsync(this.mapper.Map<EmployeeTransferObject>(employee));
         }
+
+        /// <inheritdoc/>
+        public Task<int> CountAsync()
+        {
+            return this.accessFactory
+                .GetEmployeeDataAccessObject()
+                .CountAsync();
+        }
     }
 }

@@ -174,6 +174,12 @@ namespace Northwind.Services.EntityFrameworkCore.Blogging
         }
 
         /// <inheritdoc/>
+        public Task<int> CommentsCountAsync(int articleId)
+        {
+            return this.context.BlogComments.Where(c => c.ArticleId == articleId).CountAsync();
+        }
+
+        /// <inheritdoc/>
         public async IAsyncEnumerable<BlogArticle> GetBlogArticlesAsync(int offset, int limit)
         {
             var query = this.context.BlogArticles
@@ -184,6 +190,12 @@ namespace Northwind.Services.EntityFrameworkCore.Blogging
             {
                 yield return this.mapper.Map<BlogArticle>(entity);
             }
+        }
+
+        /// <inheritdoc/>
+        public Task<int> CountAsync()
+        {
+            return this.context.BlogArticles.CountAsync();
         }
 
         /// <inheritdoc/>

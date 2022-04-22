@@ -136,6 +136,12 @@ namespace Northwind.Services.EntityFrameworkCore.Services
             return false;
         }
 
+        /// <inheritdoc/>
+        public Task<int> CountAsync()
+        {
+            return this.context.Products.CountAsync();
+        }
+
         private int GenerateProductId()
         {
             int id = this.context.Products.Count() + 1;

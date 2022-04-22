@@ -208,5 +208,16 @@ namespace NorthwindApiApp.Controllers
                 return this.NotFound();
             }
         }
+
+        /// <summary>
+        /// Gets categories count.
+        /// </summary>
+        /// <returns>Categories count.</returns>
+        // GET api/<CategoriesController>/count
+        [HttpGet("count")]
+        public async Task<ActionResult<int>> GetCategoriesCountAsync()
+        {
+            return this.Ok(await this.categoryService.CountAsync());
+        }
     }
 }

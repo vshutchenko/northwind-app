@@ -44,5 +44,11 @@ namespace Northwind.Services.Employees
         /// <param name="employee">An <see cref="Employee"/>.</param>
         /// <returns>True if an employee is updated; otherwise false.</returns>
         Task<bool> UpdateEmployeeAsync(int employeeId, Employee employee);
+
+        /// <summary>
+        /// Gets employees count.
+        /// </summary>
+        /// <returns>Returns <see cref="Task{IActionResult}"/>.</returns>
+        public Task<int> CountAsync();
     }
 }

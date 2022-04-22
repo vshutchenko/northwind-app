@@ -130,5 +130,16 @@ namespace NorthwindApiApp.Controllers
                 return this.NotFound();
             }
         }
+
+        /// <summary>
+        /// Gets products count.
+        /// </summary>
+        /// <returns>Products count.</returns>
+        // GET api/<ProductsController>/count
+        [HttpGet("count")]
+        public async Task<ActionResult<int>> GetProductsCountAsync()
+        {
+            return this.Ok(await this.service.CountAsync());
+        }
     }
 }

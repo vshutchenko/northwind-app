@@ -102,5 +102,13 @@ namespace Northwind.Services.DataAccess.Services
                 yield return this.mapper.Map<Product>(transfer);
             }
         }
+
+        /// <inheritdoc/>
+        public Task<int> CountAsync()
+        {
+            return this.accessFactory
+                .GetProductDataAccessObject()
+                .CountAsync();
+        }
     }
 }

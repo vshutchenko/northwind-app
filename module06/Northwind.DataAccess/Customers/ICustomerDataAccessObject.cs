@@ -43,5 +43,11 @@ namespace Northwind.DataAccess.Customers
         /// <param name="limit">A limit of returned objects.</param>
         /// <returns>A <see cref="IAsyncEnumerable{T}"/> of <see cref="CustomerTransferObject"/>.</returns>
         IAsyncEnumerable<CustomerTransferObject> SelectCustomersAsync(int offset, int limit);
+
+        /// <summary>
+        /// Get customers count.
+        /// </summary>
+        /// <returns>A <see cref="Task{T}"/> of <see cref="int"/>.</returns>
+        Task<int> CountAsync();
     }
 }

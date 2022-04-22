@@ -107,5 +107,18 @@ namespace Northwind.Services.Blogging
         /// <param name="commentId">Comment id.</param>
         /// <returns>Returns <see cref="Task{IActionResult}"/>.</returns>
         public Task<bool> DeleteBlogArticleCommentAsync(int articleId, int commentId);
+
+        /// <summary>
+        /// Gets blog articles count.
+        /// </summary>
+        /// <returns>Returns <see cref="Task{IActionResult}"/>.</returns>
+        public Task<int> CountAsync();
+
+        /// <summary>
+        /// Gets blog article comments count.
+        /// </summary>
+        /// <param name="articleId">Article id.</param>
+        /// <returns>Returns <see cref="Task{IActionResult}"/>.</returns>
+        public Task<int> CommentsCountAsync(int articleId);
     }
 }

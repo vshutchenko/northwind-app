@@ -18,6 +18,15 @@ namespace NorthwindMvcApp
             BaseAddress = new Uri("http://localhost:5000")
         };
 
+        public async Task<int> GetProductsCountAsync()
+        {
+            var response = await this.httpClient.GetAsync($"api/products/count");
+
+            var stream = await response.Content.ReadAsStreamAsync();
+
+            return await stream.DeserializeAsync<int>();
+        }
+
         public async Task<Product> GetProductAsync(int id)
         {
             var response = await this.httpClient.GetAsync($"api/products/{id}");
@@ -80,6 +89,15 @@ namespace NorthwindMvcApp
             var response = await this.httpClient.PostAsync($"api/products", content);
 
             return response.IsSuccessStatusCode;
+        }
+
+        public async Task<int> GetCategoriesCountAsync()
+        {
+            var response = await this.httpClient.GetAsync($"api/categories/count");
+
+            var stream = await response.Content.ReadAsStreamAsync();
+
+            return await stream.DeserializeAsync<int>();
         }
 
         public async Task<ProductCategory> GetCategoryAsync(int id)
@@ -162,6 +180,15 @@ namespace NorthwindMvcApp
             }
 
             return (false, -1);
+        }
+
+        public async Task<int> GetEmployeesCountAsync()
+        {
+            var response = await this.httpClient.GetAsync($"api/employees/count");
+
+            var stream = await response.Content.ReadAsStreamAsync();
+
+            return await stream.DeserializeAsync<int>();
         }
 
         public async Task<Employee> GetEmployeeAsync(int id)
@@ -262,6 +289,15 @@ namespace NorthwindMvcApp
             }
 
             return (false, -1);
+        }
+
+        public async Task<int> GetCustomersCountAsync()
+        {
+            var response = await this.httpClient.GetAsync($"api/customers/count");
+
+            var stream = await response.Content.ReadAsStreamAsync();
+
+            return await stream.DeserializeAsync<int>();
         }
 
         public async Task<Customer> GetCustomerAsync(string id)

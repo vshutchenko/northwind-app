@@ -61,5 +61,16 @@ namespace NorthwindApiApp.Controllers
                 return this.NotFound();
             }
         }
+
+        /// <summary>
+        /// Gets customers count.
+        /// </summary>
+        /// <returns>Customers count.</returns>
+        // GET api/<CustomersController>/count
+        [HttpGet("count")]
+        public async Task<ActionResult<int>> GetCustomersCountAsync()
+        {
+            return this.Ok(await this.service.CountAsync());
+        }
     }
 }

@@ -92,5 +92,13 @@ namespace Northwind.Services.DataAccess.Services
                 .GetProductCategoryDataAccessObject()
                 .UpdateProductCategoryAsync(this.mapper.Map<ProductCategoryTransferObject>(productCategory));
         }
+
+        /// <inheritdoc/>
+        public Task<int> CountAsync()
+        {
+            return this.accessFactory
+                .GetProductCategoryDataAccessObject()
+                .CountAsync();
+        }
     }
 }
