@@ -12,8 +12,8 @@ namespace Northwind.DataAccess.Customers
         /// Inserts a new Northwind customer to a data storage.
         /// </summary>
         /// <param name="customer">An <see cref="CustomerTransferObject"/>.</param>
-        /// <returns>A data storage identifier of a new customer.</returns>
-        Task<string> InsertCustomerAsync(CustomerTransferObject customer);
+        /// <returns>True if value was inserted, false otherwise.</returns>
+        Task<bool> InsertCustomerAsync(CustomerTransferObject customer);
 
         /// <summary>
         /// Deletes a Northwind customer from a data storage.

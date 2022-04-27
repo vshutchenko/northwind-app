@@ -12,6 +12,7 @@ using NorthwindMvcApp.Models;
 using NorthwindMvcApp.ViewModels;
 using NorthwindMvcApp.ViewModels.Article;
 using NorthwindMvcApp.ViewModels.Category;
+using NorthwindMvcApp.ViewModels.Customer;
 using NorthwindMvcApp.ViewModels.Employee;
 using NorthwindMvcApp.ViewModels.Product;
 using NorthwindMvcApp.ViewModels.User;
@@ -36,6 +37,9 @@ namespace NorthwindMvcApp
                 .ReverseMap();
 
             this.CreateMap<User, UserViewModel>();
+
+            this.CreateMap<Customer, CustomerViewModel>().ReverseMap();
+
 
             this.CreateMap<Product, ProductViewModel>().ReverseMap();
             this.CreateMap<ProductInputViewModel, Product>().ForSourceMember(x => x.CategoryItems, opt => opt.DoNotValidate()).ReverseMap();

@@ -26,13 +26,13 @@ namespace Northwind.DataAccess.SqlServer.Customers
         }
 
         /// <inheritdoc/>
-        public Task<string> InsertCustomerAsync(CustomerTransferObject customer)
+        public Task<bool> InsertCustomerAsync(CustomerTransferObject customer)
         {
             customer = customer ?? throw new ArgumentNullException(nameof(customer));
 
             return InsertAsync();
 
-            async Task<string> InsertAsync()
+            async Task<bool> InsertAsync()
             {
                 await using var sqlCommand = new SqlCommand("InsertCustomer", this.connection)
                 {
@@ -40,15 +40,16 @@ namespace Northwind.DataAccess.SqlServer.Customers
                 };
 
                 sqlCommand.Parameters.AddRange(GetCustomerParameters(customer));
+                sqlCommand.Parameters.Add(new SqlParameter("id", customer.Id));
 
                 if (this.connection.State != ConnectionState.Open)
                 {
                     await this.connection.OpenAsync();
                 }
 
-                string insertedId = (await sqlCommand.ExecuteScalarAsync()).ToString();
+                int insertedCount = await sqlCommand.ExecuteNonQueryAsync();
 
-                return insertedId;
+                return insertedCount == 1;
             }
         }
 

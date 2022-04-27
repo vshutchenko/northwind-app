@@ -63,6 +63,75 @@ namespace NorthwindApiApp.Controllers
         }
 
         /// <summary>
+        /// Creates customer.
+        /// </summary>
+        /// <param name="customer">Customer to create.</param>
+        /// <returns>Created customer.</returns>
+        // POST api/<CustomersController>
+        [HttpPost]
+        public async Task<ActionResult<Customer>> PostCustomerAsync(Customer customer)
+        {
+            if (customer is null)
+            {
+                return this.BadRequest();
+            }
+
+            bool isCreated = await this.service.CreateCustomerAsync(customer);
+            if (isCreated)
+            {
+                return this.CreatedAtAction(nameof(PostCustomerAsync), customer);
+            }
+            else
+            {
+                return this.Conflict();
+            }
+        }
+
+        /// <summary>
+        /// Updates customer.
+        /// </summary>
+        /// <param name="id">Id.</param>
+        /// <param name="customer">Customer to update.</param>
+        /// <returns>Returns <see cref="Task{IActionResult}"/>.</returns>
+        // PUT api/<CustomersController>/{id}
+        [HttpPut("{id}")]
+        public async Task<IActionResult> PutCustomerAsync(string id, Customer customer)
+        {
+            if (customer is null || id != customer.Id)
+            {
+                return this.BadRequest();
+            }
+
+            if (await this.service.UpdateCustomerAsync(id, customer))
+            {
+                return this.NoContent();
+            }
+            else
+            {
+                return this.NotFound();
+            }
+        }
+
+        /// <summary>
+        /// Deletes customer.
+        /// </summary>
+        /// <param name="id">Id.</param>
+        /// <returns>Returns <see cref="Task{IActionResult}"/>.</returns>
+        // DELETE api/<CustomersController>/{id}
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteCustomerAsync(string id)
+        {
+            if (await this.service.DestroyCustomerAsync(id))
+            {
+                return this.NoContent();
+            }
+            else
+            {
+                return this.NotFound();
+            }
+        }
+
+        /// <summary>
         /// Gets customers count.
         /// </summary>
         /// <returns>Customers count.</returns>

@@ -31,14 +31,14 @@ namespace Northwind.Services.EntityFrameworkCore.Services
         }
 
         /// <inheritdoc/>
-        public async Task<string> CreateCustomerAsync(Customer customer)
+        public async Task<bool> CreateCustomerAsync(Customer customer)
         {
             customer = customer ?? throw new ArgumentNullException(nameof(customer));
 
             await this.context.Customers.AddAsync(this.mapper.Map<CustomerEntity>(customer));
             await this.context.SaveChangesAsync();
 
-            return customer.Id;
+            return true;
         }
 
         /// <inheritdoc/>

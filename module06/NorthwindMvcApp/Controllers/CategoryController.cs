@@ -64,8 +64,8 @@ namespace NorthwindMvcApp.Controllers
 
                 if (!response.isCreated)
                 {
-                    ViewBag.Message = "Cannot create category";
-                    return View("OperationCanceled");
+                    ModelState.AddModelError("", "Cannot create category.");
+                    return View(inputModel);
                 }
             }
 
@@ -104,8 +104,8 @@ namespace NorthwindMvcApp.Controllers
 
                 if (!isUpdated)
                 {
-                    ViewBag.Message = "Cannot update category";
-                    return View("OperationCanceled");
+                    ModelState.AddModelError("", "Cannot update category.");
+                    return View(inputModel);
                 }
             }
 
@@ -135,8 +135,11 @@ namespace NorthwindMvcApp.Controllers
 
             if (!isDeleted)
             {
-                ViewBag.Message = "Category was not deleted because some products reference to it";
-                return View("OperationCanceled");
+                var category = await this.apiClient.GetCategoryAsync(id);
+                var viewModel = this.mapper.Map<CategoryViewModel>(category);
+
+                ModelState.AddModelError("", "Cannot delete category because it is connected with other entities.");
+                return View(viewModel);
             }
 
             return RedirectToAction(nameof(Index));

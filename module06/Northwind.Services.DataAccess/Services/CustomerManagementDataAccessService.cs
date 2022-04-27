@@ -53,7 +53,7 @@ namespace Northwind.Services.DataAccess.Services
         }
 
         /// <inheritdoc/>
-        public Task<string> CreateCustomerAsync(Customer customer)
+        public Task<bool> CreateCustomerAsync(Customer customer)
         {
             customer = customer ?? throw new ArgumentNullException(nameof(customer));
 

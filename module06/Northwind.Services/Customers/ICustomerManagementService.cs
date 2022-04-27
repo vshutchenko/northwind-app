@@ -27,8 +27,8 @@ namespace Northwind.Services.Customers
         /// Creates a new customer.
         /// </summary>
         /// <param name="customer">An <see cref="Customer"/> to create.</param>
-        /// <returns>Id of created customer.</returns>
-        Task<string> CreateCustomerAsync(Customer customer);
+        /// <returns>True if customer was inderted, false otherwise.</returns>
+        Task<bool> CreateCustomerAsync(Customer customer);
 
         /// <summary>
         /// Destroys an existed customer.

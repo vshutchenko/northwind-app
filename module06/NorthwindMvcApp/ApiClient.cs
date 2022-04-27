@@ -335,6 +335,35 @@ namespace NorthwindMvcApp
             AsyncEnumerable.Empty<Customer>();
         }
 
+        public async Task<bool> DeleteCustomerAsync(string id)
+        {
+            var response = await this.httpClient.DeleteAsync($"api/customers/{id}");
+
+            return response.IsSuccessStatusCode;
+        }
+
+        public async Task<bool> UpdateCustomerAsync(string id, Customer customer)
+        {
+            var json = await customer.SerializeAsync();
+
+            var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+            var response = await this.httpClient.PutAsync($"api/customers/{id}", content);
+
+            return response.IsSuccessStatusCode;
+        }
+
+        public async Task<bool> CreateCustomerAsync(Customer customer)
+        {
+            var json = await customer.SerializeAsync();
+
+            var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+            var response = await this.httpClient.PostAsync($"api/customers", content);
+
+            return response.IsSuccessStatusCode;
+        }
+
         private async Task<byte[]> GetCategoryPictureAsync(int id)
         {
             var response = await this.httpClient.GetAsync($"api/categories/{id}/picture");

@@ -1,0 +1,23 @@
+﻿@using NorthwindMvcApp.ViewModels.Customer
+@model CustomerListViewModel
+
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>Customers</h1>
+
+@if (this.User.IsAdmin())
+{
+    <p>
+        <a asp-action="Create">Create New</a>
+    </p>
+}
+
+<partial name="Components/CustomerList" model="@Model.Customers" />
+
+<div page-model="@Model.PagingInfo" page-action="Index" page-classes-enabled="true"
+     page-class="btn" page-class-normal="btn-outline-dark"
+     page-class-selected="btn-primary" class="btn-group pull-right m-1">
+</div>
